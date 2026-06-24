@@ -57,7 +57,7 @@ export default function Support() {
         <div className="tile">
           <div className="icon">💬</div>
           <p>WhatsApp</p>
-          <a href="https://wa.me/237600000000">+237 6 00 00 00 00</a>
+          <a href="https://wa.me/237696080087">+237 696 08 00 87</a>
         </div>
       </div>
 
