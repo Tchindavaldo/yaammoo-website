@@ -1,0 +1,103 @@
+import DocLayout from "../components/DocLayout.jsx";
+
+const MAIL = "support@yaammoo.rauval.com";
+
+export default function Privacy() {
+  return (
+    <DocLayout
+      title="Politique de confidentialité"
+      footerLinks={[{ to: "/support", label: "Support" }]}
+    >
+      <p className="updated">Dernière mise à jour : juin 2025</p>
+
+      <p>
+        Yaammoo («&nbsp;nous&nbsp;», «&nbsp;notre&nbsp;») exploite l'application
+        mobile Yaammoo disponible sur l'App Store. Cette page vous informe de nos
+        pratiques concernant la collecte, l'utilisation et la divulgation de vos
+        données personnelles lorsque vous utilisez notre service.
+      </p>
+
+      <h2>1. Données collectées</h2>
+      <p>Nous collectons les informations suivantes pour faire fonctionner le service :</p>
+      <ul>
+        <li><strong>Nom et prénom</strong> — pour personnaliser votre compte et identifier vos commandes.</li>
+        <li><strong>Adresse e-mail</strong> — pour créer votre compte et vous envoyer des confirmations.</li>
+        <li><strong>Numéro de téléphone</strong> — pour la vérification du compte et la coordination de la livraison.</li>
+        <li><strong>Adresse physique</strong> — pour livrer vos commandes à domicile.</li>
+        <li><strong>Localisation approximative</strong> — pour afficher les restaurants et boutiques près de vous.</li>
+        <li><strong>Identifiant utilisateur</strong> — pour gérer votre session et l'historique de vos commandes.</li>
+        <li><strong>Historique d'achats</strong> — pour afficher vos commandes passées et améliorer nos recommandations.</li>
+      </ul>
+
+      <h2>2. Utilisation des données</h2>
+      <p>Les données collectées sont utilisées exclusivement pour :</p>
+      <ul>
+        <li>Créer et gérer votre compte utilisateur.</li>
+        <li>Traiter vos commandes et coordonner la livraison.</li>
+        <li>Vous envoyer des notifications liées à votre commande (statut, livraison).</li>
+        <li>Améliorer la pertinence des restaurants et boutiques affichés.</li>
+        <li>Assurer la sécurité et prévenir les fraudes.</li>
+      </ul>
+      <p>
+        Nous ne vendons, ne louons et ne partageons pas vos données personnelles
+        avec des tiers à des fins publicitaires.
+      </p>
+
+      <h2>3. Paiement</h2>
+      <p>
+        Le paiement s'effectue à la livraison — aucune carte bancaire n'est requise.
+        Aucune information bancaire n'est collectée ni stockée par Yaammoo.
+      </p>
+
+      <h2>4. Partage des données</h2>
+      <p>Vos données peuvent être partagées uniquement dans les cas suivants :</p>
+      <ul>
+        <li>Avec le livreur assigné à votre commande (nom, adresse de livraison, téléphone).</li>
+        <li>Avec le restaurant ou la boutique concerné (détail de la commande).</li>
+        <li>Lorsque la loi l'exige (obligations légales ou judiciaires).</li>
+      </ul>
+
+      <h2>5. Conservation des données</h2>
+      <p>
+        Vos données sont conservées tant que votre compte est actif. Vous pouvez
+        demander la suppression de votre compte et de vos données à tout moment en
+        nous contactant.
+      </p>
+
+      <h2>6. Sécurité</h2>
+      <p>
+        Nous mettons en œuvre des mesures techniques et organisationnelles
+        appropriées pour protéger vos données contre tout accès non autorisé,
+        modification, divulgation ou destruction. Toutes les communications entre
+        l'application et nos serveurs sont chiffrées via HTTPS.
+      </p>
+
+      <h2>7. Vos droits</h2>
+      <p>Conformément à la réglementation applicable, vous disposez des droits suivants :</p>
+      <ul>
+        <li>Accès à vos données personnelles.</li>
+        <li>Rectification de données inexactes.</li>
+        <li>Suppression de votre compte et de vos données.</li>
+        <li>Opposition au traitement de vos données.</li>
+      </ul>
+      <p>
+        Pour exercer ces droits, contactez-nous à : <a href={`mailto:${MAIL}`}>{MAIL}</a>
+      </p>
+
+      <h2>8. Modifications</h2>
+      <p>
+        Nous nous réservons le droit de mettre à jour cette politique à tout moment.
+        La date de mise à jour en haut de page sera actualisée en conséquence.
+        L'utilisation continue de l'application après une modification vaut
+        acceptation de la politique révisée.
+      </p>
+
+      <h2>9. Contact</h2>
+      <p>
+        Pour toute question relative à cette politique de confidentialité :<br />
+        <strong>Yaammoo</strong><br />
+        <a href={`mailto:${MAIL}`}>{MAIL}</a>
+      </p>
+    </DocLayout>
+  );
+}
