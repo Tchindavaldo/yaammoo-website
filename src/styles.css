@@ -217,7 +217,7 @@ a:hover {
   color: var(--muted);
 }
 
-/* ---------- DOC PAGES (privacy/support/accessibility) ---------- */
+/* ---------- DOC PAGES (privacy/support) ---------- */
 .doc-body {
   background: var(--bg);
   min-height: 100vh;

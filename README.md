@@ -9,7 +9,6 @@ Site vitrine + pages légales de Yaammoo (React + Vite + React Router), déploya
 | `/` | Accueil (hero, étapes, features, liens stores) |
 | `/support` | Centre d'aide + FAQ |
 | `/privacy` | Politique de confidentialité |
-| `/accessibility` | Déclaration d'accessibilité |
 
 > Paiement **à la livraison uniquement** (espèces, aucune carte) — reflété dans les pages accueil, support et privacy.
 

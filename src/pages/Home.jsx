@@ -114,7 +114,6 @@ export default function Home() {
         <div>
           <Link to="/privacy">Politique de confidentialité</Link>
           <Link to="/support">Support</Link>
-          <Link to="/accessibility">Accessibilité</Link>
         </div>
         <div className="copy">© 2025 Yaammoo. Tous droits réservés.</div>
       </footer>
