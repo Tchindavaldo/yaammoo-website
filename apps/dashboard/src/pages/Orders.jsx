@@ -1,6 +1,7 @@
-// Gestion des commandes — portage web d'OrderManagePanel (app RN).
-// Onglets de statut, filtre date + periodes, groupage par client/date/creneau,
-// tri par rank, avancement de statut (unitaire ou sur tout le groupe).
+// Commandes — board de tickets par statut.
+// Les trois colonnes montrent l'avancement d'un coup d'oeil : le marchand voit
+// ce qui attend, ce qui est en cuisine et ce qui est pret sans changer d'onglet.
+// La logique (filtres, groupage, rangs, statuts) est celle d'OrderManagePanel.
 import { useMemo, useState } from "react";
 import {
   STATUS_TABS,
@@ -14,23 +15,25 @@ import {
   nextStatus,
   STATUS_LABELS,
   formatDayMonth,
-  formatXAF,
-  groupTotal,
   todayISO,
 } from "@yaammoo/shared";
 import { useMerchant } from "../features/merchant/MerchantContext.jsx";
-import { Chip, Empty, Loading, StatusPill } from "../components/ui.jsx";
+import { useToast } from "../components/Toast.jsx";
+import { Chip, Empty, SkBoard, IconBtn } from "../components/ui.jsx";
+import { Icon } from "../components/icons.jsx";
+import OrderTicket, { periodLabel } from "../features/orders/OrderTicket.jsx";
 import OrderDetailModal from "../features/orders/OrderDetailModal.jsx";
 
-const PERIOD_LABEL = (key) => {
-  if (key === "surplace") return "Sur place";
-  if (key === "express") return "Express";
-  return key || "Creneau";
+const COLUMN_TITLE = {
+  pending: "A traiter",
+  proccess: "En preparation",
+  finish: "Prete / livree",
 };
 
 export default function Orders() {
-  const { orders, loading, updateStatus, refresh } = useMerchant();
-  const [statusKey, setStatusKey] = useState("pending");
+  const { orders, loading, updateStatus } = useMerchant();
+  const toast = useToast();
+
   const [date, setDate] = useState(todayISO());
   const [periods, setPeriods] = useState([]);
   const [openRow, setOpenRow] = useState(null);
@@ -38,208 +41,191 @@ export default function Orders() {
 
   const dates = useMemo(() => availableDates(orders), [orders]);
 
-  // Periodes disponibles sur la date active (comme MerchantFilterSheet).
+  // Periodes presentes sur la date affichee (comme MerchantFilterSheet).
   const periodOptions = useMemo(() => {
     const onDate = orders.filter((o) => orderDateISO(o) === date);
-    const keys = [...new Set(onDate.map(orderPeriodKey))].filter(Boolean);
-    return keys.sort();
+    return [...new Set(onDate.map(orderPeriodKey))].filter(Boolean).sort();
   }, [orders, date]);
 
-  const filtered = useMemo(
-    () => filterOrders(orders, { statusKey, date, periods }),
-    [orders, statusKey, date, periods],
+  // Une colonne par statut : chacune est filtree puis groupee par creneau.
+  const columns = useMemo(
+    () =>
+      STATUS_TABS.map((tab) => ({
+        key: tab.key,
+        title: COLUMN_TITLE[tab.key] || tab.label,
+        rows: groupBySlot(filterOrders(orders, { statusKey: tab.key, date, periods })),
+      })),
+    [orders, date, periods],
   );
 
-  const rows = useMemo(() => groupBySlot(filtered), [filtered]);
   const counts = useMemo(() => untreatedCounts(orders, date), [orders, date]);
-
-  const tabCount = (key) =>
-    filterOrders(orders, { statusKey: key, date, periods }).length;
+  const total = columns.reduce((acc, c) => acc + c.rows.length, 0);
 
   const togglePeriod = (key) =>
     setPeriods((prev) =>
       prev.includes(key) ? prev.filter((p) => p !== key) : [...prev, key],
     );
 
-  // Avance tout le groupe d'un coup (portage du bouton de la carte RN).
+  // Avance tout le groupe d'un coup — un client servi, pas une ligne.
   const advanceGroup = async (group) => {
     const target = nextStatus(group[0].status);
     if (!target) return;
     setBusyId(group[0].id);
-    await Promise.all(group.map((o) => updateStatus(o.id, target)));
+    const results = await Promise.all(group.map((o) => updateStatus(o.id, target)));
     setBusyId(null);
+    if (results.every(Boolean)) {
+      toast.ok(`Passee a ${STATUS_LABELS[target]}`, `${group.length} commande(s)`);
+    } else {
+      toast.err("Mise a jour partielle", "Certaines commandes n'ont pas change.");
+    }
+  };
+
+  const shiftDate = (days) => {
+    const d = new Date(`${date}T12:00:00`);
+    d.setDate(d.getDate() + days);
+    setDate(d.toISOString().substring(0, 10));
   };
 
   return (
     <>
-      <div className="row-between" style={{ marginBottom: 14 }}>
-        <div className="chip-row">
-          {STATUS_TABS.map((t) => (
-            <Chip
-              key={t.key}
-              active={statusKey === t.key}
-              onClick={() => setStatusKey(t.key)}
-              count={tabCount(t.key)}
-            >
-              {t.label}
-            </Chip>
-          ))}
-        </div>
-        <div className="row">
+      <div className="toolbar">
+        <div className="row" style={{ gap: 4 }}>
+          <IconBtn icon="chevronLeft" label="Jour precedent" onClick={() => shiftDate(-1)} />
           <input
             className="input"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            style={{ width: 165 }}
+            style={{ width: 158 }}
           />
-          <button className="btn sm" onClick={() => refresh(true)} type="button">
-            Actualiser
+          <IconBtn icon="chevronRight" label="Jour suivant" onClick={() => shiftDate(1)} />
+        </div>
+
+        {date !== todayISO() && (
+          <button type="button" className="btn btn-sm" onClick={() => setDate(todayISO())}>
+            Aujourd'hui
           </button>
+        )}
+
+        {periodOptions.length > 0 && (
+          <div className="chip-row">
+            <Chip active={periods.length === 0} onClick={() => setPeriods([])}>
+              Tout
+            </Chip>
+            {periodOptions.map((p) => (
+              <Chip
+                key={p}
+                active={periods.includes(p)}
+                onClick={() => togglePeriod(p)}
+                count={
+                  orders.filter(
+                    (o) => orderDateISO(o) === date && orderPeriodKey(o) === p,
+                  ).length
+                }
+              >
+                {periodLabel(p)}
+              </Chip>
+            ))}
+          </div>
+        )}
+
+        <div className="toolbar-end small dim">
+          {total} ticket(s) le {formatDayMonth(date)}
         </div>
       </div>
 
-      {periodOptions.length > 0 && (
-        <div className="chip-row" style={{ marginBottom: 14 }}>
-          <Chip active={periods.length === 0} onClick={() => setPeriods([])}>
-            Toutes les periodes
-          </Chip>
-          {periodOptions.map((p) => (
-            <Chip
-              key={p}
-              active={periods.includes(p)}
-              onClick={() => togglePeriod(p)}
-              count={
-                orders.filter(
-                  (o) =>
-                    orderDateISO(o) === date &&
-                    orderPeriodKey(o) === p &&
-                    STATUS_MAP[statusKey].includes(o.status),
-                ).length
-              }
-            >
-              {PERIOD_LABEL(p)}
-            </Chip>
+      {loading && orders.length === 0 ? (
+        <SkBoard />
+      ) : total === 0 ? (
+        <div className="card">
+          <Empty
+            icon="inbox"
+            title={`Aucune commande le ${formatDayMonth(date)}`}
+            hint="Changez de date ou attendez les prochaines commandes — la vue se met a jour en direct."
+          />
+        </div>
+      ) : (
+        <div className="board">
+          {columns.map((col) => (
+            <section className={`column column-${col.key}`} key={col.key}>
+              <div className="column-head">
+                <span className="column-dot" />
+                <span className="column-title">{col.title}</span>
+                <span className="badge">{col.rows.length}</span>
+              </div>
+              <div className="column-body">
+                {col.rows.length === 0 ? (
+                  <p className="column-empty">Rien ici</p>
+                ) : (
+                  col.rows.map(({ head, group }) => (
+                    <OrderTicket
+                      key={head.id}
+                      head={head}
+                      group={group}
+                      onOpen={setOpenRow}
+                      onAdvance={advanceGroup}
+                      busy={busyId === head.id}
+                    />
+                  ))
+                )}
+              </div>
+            </section>
           ))}
         </div>
       )}
 
-      <div className="card">
-        {loading && orders.length === 0 ? (
-          <Loading label="Chargement des commandes..." />
-        ) : rows.length === 0 ? (
-          <Empty
-            title={`Aucune commande ${STATUS_TABS.find((t) => t.key === statusKey)?.label.toLowerCase()}`}
-            hint={`Pour le ${formatDayMonth(date)}`}
-          />
-        ) : (
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: 52 }}>Rang</th>
-                  <th>Client</th>
-                  <th>Commande</th>
-                  <th>Livraison</th>
-                  <th className="right">Montant</th>
-                  <th>Statut</th>
-                  <th style={{ width: 150 }} className="no-print"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(({ head, group }) => {
-                  const target = nextStatus(head.status);
-                  const period = orderPeriodKey(head);
-                  return (
-                    <tr
-                      key={head.id}
-                      onClick={() => setOpenRow({ head, group })}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <td className="mono dim">
-                        {typeof head.rank === "number" ? head.rank : "—"}
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 600 }} className="truncate">
-                          {head.userData?.infos?.nom ||
-                            head.userData?.nom ||
-                            head.userData?.email ||
-                            "Client"}
-                        </div>
-                        <div className="small dim">
-                          {head.delivery?.phone || head.userData?.infos?.numero || ""}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="truncate" style={{ maxWidth: 230 }}>
-                          {head.menu?.titre || head.menu?.name || "Menu"}
-                          {head.quantity > 1 ? ` x${head.quantity}` : ""}
-                        </div>
-                        {group.length > 1 && (
-                          <span className="pill">{group.length} commandes groupees</span>
-                        )}
-                      </td>
-                      <td>
-                        <span className="pill">{PERIOD_LABEL(period)}</span>
-                        <div className="small dim truncate" style={{ maxWidth: 180 }}>
-                          {head.delivery?.address || head.delivery?.zone || ""}
-                        </div>
-                      </td>
-                      <td className="right mono" style={{ fontWeight: 650 }}>
-                        {formatXAF(groupTotal(group))}
-                      </td>
-                      <td>
-                        <StatusPill status={head.status} />
-                      </td>
-                      <td className="no-print">
-                        {target && (
-                          <button
-                            className="btn primary sm"
-                            disabled={busyId === head.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              advanceGroup(group);
-                            }}
-                            type="button"
-                          >
-                            {busyId === head.id
-                              ? "..."
-                              : `Passer a ${STATUS_LABELS[target]}`}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
       {(counts.past > 0 || counts.future > 0) && (
         <div className="notice-row">
           {counts.past > 0 && (
-            <div className="notice past">
-              <span className="notice-count mono">{counts.past}</span>
-              Commandes passees non traitees
-            </div>
+            <button
+              type="button"
+              className="notice notice-past"
+              onClick={() => setDate(lastBefore(dates, date) || date)}
+            >
+              <span className="notice-count">{counts.past}</span>
+              <span className="stacked grow">
+                <span className="strong">Commandes passees non traitees</span>
+                <span className="small dim">Aller a la date concernee</span>
+              </span>
+              <Icon name="chevronRight" size={16} />
+            </button>
           )}
           {counts.future > 0 && (
-            <div className="notice future">
-              <span className="notice-count mono">{counts.future}</span>
-              Commandes a venir pas encore traitees
-            </div>
+            <button
+              type="button"
+              className="notice notice-future"
+              onClick={() => setDate(firstAfter(dates, date) || date)}
+            >
+              <span className="notice-count">{counts.future}</span>
+              <span className="stacked grow">
+                <span className="strong">Commandes a venir</span>
+                <span className="small dim">Pas encore traitees</span>
+              </span>
+              <Icon name="chevronRight" size={16} />
+            </button>
           )}
         </div>
       )}
 
       {dates.length > 1 && (
         <>
-          <h3 className="section-title">Autres dates</h3>
+          <div className="section-head">
+            <h3>Autres dates</h3>
+          </div>
           <div className="chip-row">
             {dates.map((d) => (
-              <Chip key={d} active={d === date} onClick={() => setDate(d)}>
+              <Chip
+                key={d}
+                active={d === date}
+                onClick={() => setDate(d)}
+                count={
+                  orders.filter(
+                    (o) =>
+                      orderDateISO(o) === d &&
+                      STATUS_MAP.pending.includes(o.status),
+                  ).length || undefined
+                }
+              >
                 {formatDayMonth(d)}
               </Chip>
             ))}
@@ -257,4 +243,14 @@ export default function Orders() {
       )}
     </>
   );
+}
+
+/** Date non traitee la plus proche avant `date`. */
+function lastBefore(dates, date) {
+  return [...dates].filter((d) => d < date).sort().pop();
+}
+
+/** Date non traitee la plus proche apres `date`. */
+function firstAfter(dates, date) {
+  return [...dates].filter((d) => d > date).sort().shift();
 }

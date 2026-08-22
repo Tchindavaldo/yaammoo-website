@@ -1,0 +1,403 @@
+/* Coque : barre laterale, barre haute, zone de contenu. */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Barre laterale ───────────────────────────────────────────────────── */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transition: width var(--slow);
+}
+.shell.collapsed .sidebar {
+  width: var(--sidebar-w-collapsed);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--topbar-h);
+  padding: 0 14px;
+  flex-shrink: 0;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+.brand-name {
+  font-size: 14.5px;
+  font-weight: 660;
+  letter-spacing: -0.015em;
+}
+.brand-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Selecteur de boutique — l'admin y bascule d'une boutique a l'autre. */
+.shop-switch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: calc(100% - 20px);
+  margin: 0 10px 6px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  text-align: left;
+  transition: background var(--fast);
+}
+.shop-switch:hover {
+  background: var(--surface-3);
+}
+.shop-avatar {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--r-xs);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.shop-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.shop-name {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.shop-role {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.nav-section {
+  padding: 15px 10px 6px;
+  font-size: 10.5px;
+  font-weight: 660;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  color: var(--text-soft);
+  font-size: 13.5px;
+  font-weight: 550;
+  transition:
+    background var(--fast),
+    color var(--fast);
+}
+.nav-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.nav-item.active {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-weight: 620;
+}
+/* Repere vertical : l'element actif se lit meme en niveaux de gris. */
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 var(--r-full) var(--r-full) 0;
+  background: var(--accent);
+}
+.nav-item svg {
+  color: currentColor;
+  opacity: 0.85;
+}
+.nav-item .badge {
+  margin-left: auto;
+}
+.nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-foot {
+  padding: 10px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.account {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px 10px;
+  min-width: 0;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 660;
+}
+
+/* En mode reduit, tout ce qui est texte disparait. */
+.shell.collapsed .brand-text,
+.shell.collapsed .nav-label,
+.shell.collapsed .nav-section,
+.shell.collapsed .shop-meta,
+.shell.collapsed .account-meta,
+.shell.collapsed .nav-item .badge {
+  display: none;
+}
+.shell.collapsed .nav-item,
+.shell.collapsed .shop-switch,
+.shell.collapsed .account {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.shell.collapsed .nav-section {
+  height: 12px;
+}
+
+/* ── Barre haute ──────────────────────────────────────────────────────── */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--topbar-h);
+  padding: 0 var(--gutter);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: saturate(1.6) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+/* Temoin temps reel : point + libelle, pas seulement une couleur. */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  font-size: 11.5px;
+  font-weight: 570;
+  color: var(--text-dim);
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.live.on {
+  background: var(--done-soft);
+  color: var(--done);
+}
+.live.on .live-dot {
+  background: currentColor;
+  animation: pulse-dot 2.2s ease-in-out infinite;
+}
+
+.content {
+  flex: 1;
+  padding: 20px var(--gutter) 48px;
+  min-width: 0;
+}
+
+.menu-btn {
+  display: none;
+}
+
+/* Bandeau de pilotage : rappelle a l'admin qu'il agit sur une autre boutique. */
+.pilot-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px var(--gutter);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 12.5px;
+  font-weight: 570;
+  border-bottom: 1px solid var(--border);
+}
+.pilot-bar .btn {
+  margin-left: auto;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+.scrim {
+  display: none;
+}
+
+@media (max-width: 1020px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-w);
+    transform: translateX(-100%);
+    transition: transform var(--slow);
+    box-shadow: var(--sh-4);
+  }
+  .shell.drawer-open .sidebar {
+    transform: translateX(0);
+  }
+  .shell.collapsed .sidebar {
+    width: var(--sidebar-w);
+  }
+  .shell.collapsed .brand-text,
+  .shell.collapsed .nav-label,
+  .shell.collapsed .nav-section,
+  .shell.collapsed .shop-meta,
+  .shell.collapsed .account-meta,
+  .shell.collapsed .nav-item .badge {
+    display: revert;
+  }
+  .shell.collapsed .nav-item,
+  .shell.collapsed .shop-switch,
+  .shell.collapsed .account {
+    justify-content: flex-start;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: var(--overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--slow);
+  }
+  .shell.drawer-open .scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-btn {
+    display: inline-grid;
+  }
+  .collapse-btn {
+    display: none;
+  }
+  .topbar-sub {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 14px var(--gutter) 40px;
+  }
+  .grid-stats {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .stat-value {
+    font-size: 22px;
+  }
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal {
+    max-height: 92vh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+}

@@ -1,14 +1,23 @@
-// Admin — toutes les boutiques de la plateforme.
-// "Piloter" bascule le contexte marchand sur la boutique choisie : les ecrans
-// Commandes / Menus / Caisse travaillent alors sur cette boutique.
+// Admin — toutes les boutiques de la plateforme, en grille de cartes.
+// "Piloter" bascule le contexte marchand sur la boutique choisie : Commandes,
+// Menus et Caisse travaillent alors sur cette boutique.
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminService } from "@yaammoo/shared";
 import { useMerchant } from "../../features/merchant/MerchantContext.jsx";
-import { Stat, Empty, Loading } from "../../components/ui.jsx";
+import {
+  Alert,
+  Avatar,
+  Btn,
+  Empty,
+  Kpi,
+  KpiBand,
+  Search,
+  SkCards,
+} from "../../components/ui.jsx";
 
 export default function AdminShops() {
-  const { setOverrideFastFoodId, fastFoodId } = useMerchant();
+  const { setOverrideFastFoodId, overrideFastFoodId } = useMerchant();
   const navigate = useNavigate();
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,9 +39,7 @@ export default function AdminShops() {
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return shops;
-    return shops.filter((s) =>
-      (s.name || s.nom || "").toLowerCase().includes(q),
-    );
+    return shops.filter((s) => (s.name || s.nom || "").toLowerCase().includes(q));
   }, [shops, search]);
 
   const pilot = (id) => {
@@ -40,86 +47,88 @@ export default function AdminShops() {
     navigate("/commandes");
   };
 
-  if (loading) return <Loading label="Chargement des boutiques..." />;
-  if (error)
-    return (
-      <div className="card card-pad" style={{ color: "var(--danger)" }}>
-        ❌ {error}
-      </div>
-    );
+  if (loading) return <SkCards count={6} />;
+  if (error) return <Alert>{error}</Alert>;
 
   return (
     <>
-      <div className="stat-grid">
-        <Stat label="Boutiques" value={shops.length} />
-        <Stat
-          label="Menus au total"
+      <KpiBand>
+        <Kpi lead icon="shops" label="Boutiques" value={shops.length} foot="Sur la plateforme" />
+        <Kpi
+          icon="menus"
+          label="Menus cumules"
           value={shops.reduce((a, s) => a + (s.menu?.length || 0), 0)}
         />
-      </div>
-
-      <div className="row-between" style={{ marginBottom: 12 }}>
-        <input
-          className="input"
-          style={{ maxWidth: 300 }}
-          placeholder="Rechercher une boutique..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+        <Kpi
+          icon="orders"
+          label="Commandes cumulees"
+          value={shops.reduce((a, s) => a + (s.orders?.length || 0), 0)}
         />
-        {fastFoodId && (
-          <button
-            className="btn sm"
-            onClick={() => setOverrideFastFoodId(null)}
-            type="button"
-          >
-            Revenir a ma boutique
-          </button>
-        )}
-      </div>
+        <Kpi
+          icon="pos"
+          label="Boutique pilotee"
+          value={overrideFastFoodId ? "1" : "—"}
+        />
+      </KpiBand>
 
-      <div className="card">
-        {visible.length === 0 ? (
-          <Empty title="Aucune boutique" />
-        ) : (
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Boutique</th>
-                  <th>Proprietaire</th>
-                  <th className="right">Menus</th>
-                  <th className="right">Commandes</th>
-                  <th style={{ width: 110 }} className="no-print"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((s) => (
-                  <tr key={s.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{s.name || s.nom}</div>
-                      <div className="small dim mono">{s.id}</div>
-                    </td>
-                    <td className="small">
-                      {s.owner?.infos?.nom || s.owner?.infos?.email || "—"}
-                    </td>
-                    <td className="right mono">{s.menu?.length || 0}</td>
-                    <td className="right mono">{s.orders?.length || 0}</td>
-                    <td className="no-print">
-                      <button
-                        className="btn sm"
-                        onClick={() => pilot(s.id)}
-                        type="button"
-                      >
-                        Piloter
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="toolbar">
+        <Search value={search} onChange={setSearch} placeholder="Rechercher une boutique..." />
+        {overrideFastFoodId && (
+          <div className="toolbar-end">
+            <Btn size="sm" icon="swap" onClick={() => setOverrideFastFoodId(null)}>
+              Revenir a ma boutique
+            </Btn>
           </div>
         )}
       </div>
+
+      {visible.length === 0 ? (
+        <div className="card">
+          <Empty icon="shops" title="Aucune boutique" hint="Aucun resultat pour cette recherche." />
+        </div>
+      ) : (
+        <div className="card-grid">
+          {visible.map((s) => {
+            const name = s.name || s.nom || "Boutique";
+            const active = overrideFastFoodId === s.id;
+            return (
+              <article className="card card-pad stack" key={s.id}>
+                <div className="row">
+                  <Avatar name={name} className="shop-avatar" />
+                  <div className="stacked grow">
+                    <span className="strong truncate">{name}</span>
+                    <span className="tiny dim truncate">
+                      {s.owner?.infos?.nom || s.owner?.infos?.email || "Proprietaire inconnu"}
+                    </span>
+                  </div>
+                  {active && <span className="pill pill-accent">Pilotee</span>}
+                </div>
+
+                <div className="row" style={{ gap: 18 }}>
+                  <span className="stacked">
+                    <span className="tiny dim">Menus</span>
+                    <span className="strong num">{s.menu?.length || 0}</span>
+                  </span>
+                  <span className="stacked">
+                    <span className="tiny dim">Commandes</span>
+                    <span className="strong num">{s.orders?.length || 0}</span>
+                  </span>
+                </div>
+
+                <Btn
+                  size="sm"
+                  icon="arrowRight"
+                  block
+                  variant={active ? "ghost" : "default"}
+                  onClick={() => pilot(s.id)}
+                >
+                  {active ? "Deja pilotee" : "Piloter cette boutique"}
+                </Btn>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }

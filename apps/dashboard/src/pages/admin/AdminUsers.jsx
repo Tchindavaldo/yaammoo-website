@@ -1,9 +1,19 @@
 // Admin — utilisateurs de la plateforme.
-// Le backend n'expose pas d'endpoint de listing global : on derive les comptes
-// depuis les proprietaires de boutiques et les clients vus dans les commandes.
+// Le backend n'expose pas d'endpoint de listing global : la liste est derivee
+// des proprietaires de boutiques et des clients vus dans les commandes.
 import { useEffect, useMemo, useState } from "react";
 import { adminService, orderDateISO, orderTotal, formatXAF } from "@yaammoo/shared";
-import { Stat, Empty, Loading } from "../../components/ui.jsx";
+import {
+  Alert,
+  Avatar,
+  Empty,
+  Kpi,
+  KpiBand,
+  Search,
+  SkTable,
+} from "../../components/ui.jsx";
+
+const LIMIT = 300;
 
 export default function AdminUsers() {
   const [rows, setRows] = useState([]);
@@ -92,34 +102,34 @@ export default function AdminUsers() {
   }, [rows, search]);
 
   const merchants = rows.filter((r) => r.role === "Marchand").length;
+  const volume = rows.reduce((a, r) => a + r.volume, 0);
 
-  if (loading) return <Loading label="Chargement des utilisateurs..." />;
-  if (error)
-    return (
-      <div className="card card-pad" style={{ color: "var(--danger)" }}>
-        ❌ {error}
-      </div>
-    );
+  if (loading) return <SkTable rows={8} cols={6} />;
+  if (error) return <Alert>{error}</Alert>;
 
   return (
     <>
-      <div className="stat-grid">
-        <Stat label="Comptes identifies" value={rows.length} />
-        <Stat label="Marchands" value={merchants} />
-        <Stat label="Clients" value={rows.length - merchants} />
-      </div>
+      <KpiBand>
+        <Kpi
+          lead
+          icon="users"
+          label="Comptes identifies"
+          value={rows.length}
+          foot="Derives des boutiques et des commandes"
+        />
+        <Kpi icon="shops" label="Marchands" value={merchants} />
+        <Kpi icon="user" label="Clients" value={rows.length - merchants} />
+        <Kpi icon="wallet" label="Volume genere" value={formatXAF(volume)} />
+      </KpiBand>
 
-      <input
-        className="input"
-        style={{ maxWidth: 320, marginBottom: 13 }}
-        placeholder="Rechercher un utilisateur..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="toolbar">
+        <Search value={search} onChange={setSearch} placeholder="Nom, email ou telephone..." />
+        <span className="small dim">{visible.length} resultat(s)</span>
+      </div>
 
       <div className="card">
         {visible.length === 0 ? (
-          <Empty title="Aucun utilisateur" />
+          <Empty icon="users" title="Aucun utilisateur" hint="Aucun compte ne correspond." />
         ) : (
           <div className="table-wrap">
             <table className="table">
@@ -134,24 +144,31 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {visible.slice(0, 300).map((r) => (
+                {visible.slice(0, LIMIT).map((r) => (
                   <tr key={r.key}>
                     <td>
-                      <div style={{ fontWeight: 600 }}>{r.nom}</div>
-                      {r.shop && <div className="small dim">{r.shop}</div>}
+                      <span className="client-cell">
+                        <Avatar name={r.nom} />
+                        <span className="stacked">
+                          <span className="client-name truncate">{r.nom}</span>
+                          {r.shop && <span className="tiny dim truncate">{r.shop}</span>}
+                        </span>
+                      </span>
                     </td>
                     <td className="small">
-                      <div>{r.email || "—"}</div>
-                      <div className="dim">{r.numero || ""}</div>
+                      <span className="stacked">
+                        <span>{r.email || "—"}</span>
+                        <span className="dim num">{r.numero || ""}</span>
+                      </span>
                     </td>
                     <td>
-                      <span className={`pill ${r.role === "Marchand" ? "process" : ""}`}>
+                      <span className={r.role === "Marchand" ? "pill pill-process" : "pill"}>
                         {r.role}
                       </span>
                     </td>
-                    <td className="right mono">{r.orders}</td>
-                    <td className="right mono">{formatXAF(r.volume)}</td>
-                    <td className="small dim">{r.lastSeen || "—"}</td>
+                    <td className="right num strong">{r.orders}</td>
+                    <td className="right num">{formatXAF(r.volume)}</td>
+                    <td className="small dim nowrap">{r.lastSeen || "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -160,11 +177,11 @@ export default function AdminUsers() {
         )}
       </div>
 
-      <div className="small dim" style={{ marginTop: 11 }}>
+      <p className="small dim" style={{ marginTop: 12 }}>
         NOTE : liste derivee des boutiques et des commandes. Un endpoint backend
-        de listing des comptes donnerait une vue exhaustive (utilisateurs sans
-        commande compris).
-      </div>
+        de listing des comptes donnerait une vue exhaustive, utilisateurs sans
+        commande compris.
+      </p>
     </>
   );
 }

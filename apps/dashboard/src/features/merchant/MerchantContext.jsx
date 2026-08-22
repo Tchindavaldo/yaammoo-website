@@ -187,6 +187,7 @@ export function MerchantProvider({ children }) {
     error,
     fastFoodId,
     isAdmin,
+    overrideFastFoodId,
     setOverrideFastFoodId,
     refresh: fetchData,
     updateStatus,

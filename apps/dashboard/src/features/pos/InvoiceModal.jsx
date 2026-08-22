@@ -1,5 +1,5 @@
 // Facture / bon de caisse imprimable.
-// Le CSS @media print masque la coque et ne garde que ce bloc.
+// styles/print.css masque la coque et ne laisse que ce bloc sur le papier.
 import {
   formatXAF,
   formatFullDate,
@@ -7,13 +7,14 @@ import {
   invoiceNumber,
   orderTotal,
 } from "@yaammoo/shared";
-import { Modal } from "../../components/ui.jsx";
+import { Btn, Modal } from "../../components/ui.jsx";
 import { useMerchant } from "../merchant/MerchantContext.jsx";
 
 export default function InvoiceModal({ orders, onClose }) {
   const { boutique } = useMerchant();
   const first = orders[0] || {};
   const number = invoiceNumber(first.id, first.createdAt);
+  const issuedAt = first.createdAt || new Date().toISOString();
 
   const lines = orders.map((o) => ({
     label: o.menu?.titre || o.menu?.name || "Menu",
@@ -33,50 +34,46 @@ export default function InvoiceModal({ orders, onClose }) {
 
   return (
     <Modal
-      title="Facture"
+      title="Bon de caisse"
       subtitle={number}
       onClose={onClose}
       footer={
         <>
-          <button className="btn" onClick={onClose} type="button">
-            Fermer
-          </button>
-          <button className="btn primary" onClick={() => window.print()} type="button">
+          <Btn onClick={onClose}>Fermer</Btn>
+          <Btn variant="primary" icon="printer" onClick={() => window.print()}>
             Imprimer
-          </button>
+          </Btn>
         </>
       }
     >
       <div className="modal-body">
         <div className="invoice">
           <div className="invoice-head">
-            <div>
-              <div className="invoice-title">
+            <div className="stacked">
+              <span className="invoice-shop">
                 {boutique?.name || boutique?.nom || "Yaammoo"}
-              </div>
-              <div className="small muted">Bon de caisse</div>
+              </span>
+              <span className="small muted">Bon de caisse</span>
             </div>
             <div className="invoice-meta">
-              <div>
-                <strong>{number}</strong>
-              </div>
-              <div>{formatFullDate(first.createdAt || new Date().toISOString())}</div>
-              <div>{formatTime(first.createdAt || new Date().toISOString())}</div>
+              <div className="strong">{number}</div>
+              <div>{formatFullDate(issuedAt)}</div>
+              <div>{formatTime(issuedAt)}</div>
             </div>
           </div>
 
-          <table className="table" style={{ marginBottom: 6 }}>
+          <table className="table table-plain invoice-client">
             <tbody>
               <tr>
                 <td className="dim" style={{ width: 110 }}>
                   Client
                 </td>
-                <td style={{ fontWeight: 600 }}>{client}</td>
+                <td className="strong">{client}</td>
               </tr>
               {phone && (
                 <tr>
                   <td className="dim">Telephone</td>
-                  <td>{phone}</td>
+                  <td className="num">{phone}</td>
                 </tr>
               )}
               {first.delivery?.address && (
@@ -101,9 +98,9 @@ export default function InvoiceModal({ orders, onClose }) {
               {lines.map((l, i) => (
                 <tr key={i}>
                   <td>{l.label}</td>
-                  <td className="right mono">{l.quantity}</td>
-                  <td className="right mono">{formatXAF(l.unit)}</td>
-                  <td className="right mono">{formatXAF(l.total)}</td>
+                  <td className="right num">{l.quantity}</td>
+                  <td className="right num">{formatXAF(l.unit)}</td>
+                  <td className="right num strong">{formatXAF(l.total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -113,17 +110,17 @@ export default function InvoiceModal({ orders, onClose }) {
             <div className="invoice-total-box">
               <div className="invoice-total-row">
                 <span className="muted">Sous-total</span>
-                <span className="mono">{formatXAF(subtotal)}</span>
+                <span>{formatXAF(subtotal)}</span>
               </div>
               {fee > 0 && (
                 <div className="invoice-total-row">
                   <span className="muted">Livraison</span>
-                  <span className="mono">{formatXAF(fee)}</span>
+                  <span>{formatXAF(fee)}</span>
                 </div>
               )}
               <div className="invoice-total-row grand">
                 <span>Total</span>
-                <span className="mono">{formatXAF(subtotal + fee)}</span>
+                <span>{formatXAF(subtotal + fee)}</span>
               </div>
             </div>
           </div>

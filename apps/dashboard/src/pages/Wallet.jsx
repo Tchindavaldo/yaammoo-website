@@ -1,5 +1,5 @@
-// Portefeuille — solde, gains/retraits par jour, transactions.
-// Portage de PorteFeuillePanel + walletStatsService (app RN).
+// Portefeuille — solde, activite par jour, journal des transactions.
+// Le graphe donne la forme de la periode, le tableau reste la vue exhaustive.
 import { useEffect, useState } from "react";
 import {
   merchantService,
@@ -8,7 +8,13 @@ import {
   formatDayMonth,
 } from "@yaammoo/shared";
 import { useMerchant } from "../features/merchant/MerchantContext.jsx";
-import { Stat, Empty, Loading } from "../components/ui.jsx";
+import { Alert, Empty, Kpi, KpiBand, Segmented, SkTable } from "../components/ui.jsx";
+import { BarChart } from "../components/Chart.jsx";
+
+const PERIODS = [
+  { key: "week", label: "Semaine" },
+  { key: "month", label: "Mois" },
+];
 
 export default function Wallet() {
   const { transactions } = useMerchant();
@@ -44,104 +50,112 @@ export default function Wallet() {
 
   return (
     <>
-      <div className="row-between" style={{ marginBottom: 14 }}>
-        <div className="chip-row">
-          <button
-            className={`chip${period === "week" ? " active" : ""}`}
-            onClick={() => setPeriod("week")}
-            type="button"
-          >
-            Semaine
-          </button>
-          <button
-            className={`chip${period === "month" ? " active" : ""}`}
-            onClick={() => setPeriod("month")}
-            type="button"
-          >
-            Mois
-          </button>
-        </div>
+      <div className="toolbar">
+        <Segmented options={PERIODS} value={period} onChange={setPeriod} />
       </div>
 
-      {loading ? (
-        <Loading label="Chargement du portefeuille..." />
-      ) : error ? (
-        <div className="card card-pad">
-          <div style={{ color: "var(--danger)" }}>❌ {error}</div>
-        </div>
-      ) : (
-        <>
-          <div className="stat-grid">
-            <Stat label="Solde actuel" value={formatXAF(stats?.balance)} small />
-            <Stat label="Gains" value={formatXAF(stats?.totals?.payin)} small />
-            <Stat label="Retraits" value={formatXAF(stats?.totals?.payout)} small />
-            <Stat label="Net" value={formatXAF(stats?.totals?.net)} small />
-          </div>
+      {error && <Alert>{error}</Alert>}
 
-          <h2 className="section-title">Activite par jour</h2>
-          <div className="card">
-            {series.length === 0 ? (
-              <Empty title="Aucun mouvement sur la periode" />
-            ) : (
-              <div className="table-wrap">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Jour</th>
-                      <th className="right">Gains</th>
-                      <th className="right">Retraits</th>
-                      <th className="right">Net</th>
-                      <th style={{ width: 160 }}>Repartition</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {series.map((d) => (
-                      <tr key={d.period}>
-                        <td>{formatDayMonth(d.period)}</td>
-                        <td className="right mono">{formatXAF(d.payin)}</td>
-                        <td className="right mono">{formatXAF(d.payout)}</td>
-                        <td
-                          className="right mono"
-                          style={{
-                            fontWeight: 650,
-                            color: d.net >= 0 ? "var(--done)" : "var(--danger)",
-                          }}
-                        >
-                          {formatXAF(d.net)}
-                        </td>
-                        <td>
-                          <div
-                            style={{
-                              height: 7,
-                              borderRadius: 4,
-                              background: "var(--surface-2)",
-                              overflow: "hidden",
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: `${(Math.abs(d.net) / maxNet) * 100}%`,
-                                height: "100%",
-                                background:
-                                  d.net >= 0 ? "var(--done)" : "var(--danger)",
-                              }}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      {loading ? (
+        <SkTable rows={5} cols={4} />
+      ) : (
+        !error && (
+          <>
+            <KpiBand>
+              <Kpi
+                lead
+                icon="wallet"
+                label="Solde actuel"
+                value={formatXAF(stats?.balance)}
+                foot={period === "week" ? "Sur la semaine" : "Sur le mois"}
+              />
+              <Kpi icon="trend" label="Gains" value={formatXAF(stats?.totals?.payin)} />
+              <Kpi icon="swap" label="Retraits" value={formatXAF(stats?.totals?.payout)} />
+              <Kpi icon="chart" label="Net" value={formatXAF(stats?.totals?.net)} />
+            </KpiBand>
+
+            {series.length > 0 && (
+              <div className="card" style={{ marginBottom: 20 }}>
+                <div className="card-head">
+                  <div className="stacked">
+                    <h2>Gains encaisses</h2>
+                    <span className="tiny dim">Par jour sur la periode</span>
+                  </div>
+                </div>
+                <div className="card-pad">
+                  <BarChart
+                    data={series.map((d) => ({
+                      label: formatDayMonth(d.period).split(" ")[0],
+                      title: formatDayMonth(d.period),
+                      value: d.payin,
+                    }))}
+                    format={formatXAF}
+                    height={150}
+                  />
+                </div>
               </div>
             )}
-          </div>
-        </>
+
+            <div className="section-head">
+              <h2>Activite par jour</h2>
+            </div>
+            <div className="card">
+              {series.length === 0 ? (
+                <Empty icon="inbox" title="Aucun mouvement sur la periode" />
+              ) : (
+                <div className="table-wrap">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Jour</th>
+                        <th className="right">Gains</th>
+                        <th className="right">Retraits</th>
+                        <th className="right">Net</th>
+                        <th style={{ width: 150 }}>Repartition</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {series.map((d) => (
+                        <tr key={d.period}>
+                          <td className="nowrap">{formatDayMonth(d.period)}</td>
+                          <td className="right num">{formatXAF(d.payin)}</td>
+                          <td className="right num">{formatXAF(d.payout)}</td>
+                          <td className="right num strong">
+                            <span className={d.net >= 0 ? "pill pill-done" : "pill pill-danger"}>
+                              {formatXAF(d.net)}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="meter">
+                              <span
+                                style={{
+                                  width: `${(Math.abs(d.net) / maxNet) * 100}%`,
+                                  background:
+                                    d.net >= 0
+                                      ? "var(--done-mark)"
+                                      : "var(--danger-mark)",
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </>
+        )
       )}
 
-      <h2 className="section-title">Transactions</h2>
+      <div className="section-head">
+        <h2>Transactions</h2>
+        <span className="small dim">{transactions.length} mouvement(s)</span>
+      </div>
       <div className="card">
         {transactions.length === 0 ? (
-          <Empty title="Aucune transaction" />
+          <Empty icon="wallet" title="Aucune transaction" />
         ) : (
           <div className="table-wrap">
             <table className="table">
@@ -156,18 +170,14 @@ export default function Wallet() {
               <tbody>
                 {transactions.map((t) => (
                   <tr key={t.id}>
-                    <td>{formatFullDate(t.createdAt)}</td>
-                    <td>{t.name}</td>
+                    <td className="nowrap small">{formatFullDate(t.createdAt)}</td>
+                    <td className="strong">{t.name}</td>
                     <td className="dim">{t.payBy || "—"}</td>
-                    <td
-                      className="right mono"
-                      style={{
-                        fontWeight: 650,
-                        color: t.type === "debit" ? "var(--danger)" : "var(--done)",
-                      }}
-                    >
-                      {t.type === "debit" ? "−" : "+"}
-                      {formatXAF(t.amount)}
+                    <td className="right num strong">
+                      <span className={t.type === "debit" ? "pill pill-danger" : "pill pill-done"}>
+                        {t.type === "debit" ? "−" : "+"}
+                        {formatXAF(t.amount)}
+                      </span>
                     </td>
                   </tr>
                 ))}

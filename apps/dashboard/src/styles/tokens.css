@@ -1,0 +1,169 @@
+/* Tokens du dashboard.
+   Palette alignee sur src/theme/index.ts de l'app mobile : brand #ec4913 et
+   echelle neutre slate. Chaque token est defini en clair sur :root puis
+   redefini en sombre — jamais de couleur qui n'existe que dans un seul mode. */
+
+:root {
+  color-scheme: light;
+
+  /* Marque — identique a Theme.colors.primary de l'app mobile */
+  --brand-50: #fff3ee;
+  --brand-100: #ffe3d6;
+  --brand-200: #ffc4ac;
+  --brand-300: #ff9b76;
+  --brand-400: #f97142;
+  --brand-500: #ec4913;
+  --brand-600: #cf3a0c;
+  --brand-700: #a92e0a;
+
+  /* Neutres */
+  --n-0: #ffffff;
+  --n-25: #fcfcfd;
+  --n-50: #f8fafc;
+  --n-100: #f1f5f9;
+  --n-200: #e2e8f0;
+  --n-300: #cbd5e1;
+  --n-400: #94a3b8;
+  --n-500: #64748b;
+  --n-600: #475569;
+  --n-700: #334155;
+  --n-800: #1e293b;
+  --n-900: #0f172a;
+  --n-950: #080d16;
+
+  /* Surfaces — trois niveaux d'elevation */
+  --bg: var(--n-50);
+  --surface: var(--n-0);
+  --surface-2: var(--n-100);
+  --surface-3: var(--n-200);
+  --surface-inset: var(--n-50);
+  --overlay: rgba(15, 23, 42, 0.44);
+
+  /* Traits */
+  --border: #e6ebf1;
+  --border-strong: var(--n-300);
+  --border-focus: var(--brand-500);
+
+  /* Encre */
+  --text: var(--n-900);
+  --text-soft: var(--n-600);
+  --text-dim: var(--n-500);
+  --text-faint: var(--n-400);
+  --text-invert: var(--n-0);
+
+  /* Accent applique */
+  --accent: var(--brand-500);
+  --accent-hover: var(--brand-600);
+  --accent-ink: #ffffff;
+  --accent-soft: var(--brand-50);
+  --accent-soft-ink: var(--brand-700);
+  --accent-ring: rgba(236, 73, 19, 0.32);
+
+  /* Statuts — reserves, jamais reutilises comme couleurs de serie */
+  --pending: #b45309;
+  --pending-mark: #f59e0b;
+  --pending-soft: #fef6e7;
+  --process: #1d4ed8;
+  --process-mark: #2563eb;
+  --process-soft: #eaf1fe;
+  --done: #047857;
+  --done-mark: #10b981;
+  --done-soft: #e7f7f0;
+  --danger: #b91c1c;
+  --danger-mark: #ef4444;
+  --danger-soft: #fdecec;
+
+  /* Series de graphes — validees CVD sur la surface claire */
+  --series-1: #ec4913;
+  --series-2: #2563eb;
+  --series-3: #10b981;
+  --series-4: #f59e0b;
+  --series-5: #8b5cf6;
+  --grid: #eef2f6;
+
+  /* Geometrie */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 15px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  /* Elevation — bord + ombre, jamais l'ombre seule */
+  --sh-1: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --sh-2: 0 1px 3px rgba(15, 23, 42, 0.07), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --sh-3: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --sh-4: 0 16px 40px rgba(15, 23, 42, 0.16), 0 4px 10px rgba(15, 23, 42, 0.08);
+
+  /* Coque */
+  --sidebar-w: 250px;
+  --sidebar-w-collapsed: 68px;
+  --topbar-h: 60px;
+  --gutter: 24px;
+
+  /* Mouvement */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --fast: 130ms var(--ease);
+  --slow: 260ms var(--ease);
+
+  /* Typographie */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Mode sombre : chaque pas est choisi contre la surface sombre,
+   ce n'est pas une inversion automatique du mode clair. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0a0f18;
+  --surface: #111827;
+  --surface-2: #1a2333;
+  --surface-3: #232f42;
+  --surface-inset: #0d131f;
+  --overlay: rgba(3, 7, 14, 0.66);
+
+  --border: #212c3e;
+  --border-strong: #33415a;
+
+  --text: #eef2f8;
+  --text-soft: #b3c0d1;
+  --text-dim: #8593a8;
+  --text-faint: #63708a;
+  --text-invert: #0a0f18;
+
+  --accent: #f9713f;
+  --accent-hover: #ff8354;
+  --accent-ink: #1a0a04;
+  --accent-soft: rgba(236, 73, 19, 0.16);
+  --accent-soft-ink: #ffab86;
+  --accent-ring: rgba(249, 113, 63, 0.4);
+
+  --pending: #fbbf24;
+  --pending-mark: #fbbf24;
+  --pending-soft: rgba(245, 158, 11, 0.16);
+  --process: #7aa5f8;
+  --process-mark: #60a5fa;
+  --process-soft: rgba(59, 130, 246, 0.17);
+  --done: #45d6a1;
+  --done-mark: #34d399;
+  --done-soft: rgba(16, 185, 129, 0.16);
+  --danger: #fb7d7d;
+  --danger-mark: #f87171;
+  --danger-soft: rgba(239, 68, 68, 0.16);
+
+  /* Pas propres au fond sombre — valides par scripts/validate_palette.js
+     (bande L 0.48-0.67, separation CVD et contraste >= 3:1 sur #111827). */
+  --series-1: #e8632f;
+  --series-2: #3b82f6;
+  --series-3: #0fa97a;
+  --series-4: #c4840b;
+  --series-5: #8b5cf6;
+  --grid: #1c2534;
+
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-2: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --sh-3: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --sh-4: 0 18px 46px rgba(0, 0, 0, 0.62);
+}

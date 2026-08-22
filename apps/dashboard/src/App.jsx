@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./features/auth/AuthContext.jsx";
 import { MerchantProvider } from "./features/merchant/MerchantContext.jsx";
+import { ToastProvider } from "./components/Toast.jsx";
 import DashboardLayout from "./components/DashboardLayout.jsx";
 import Login from "./pages/Login.jsx";
 import Overview from "./pages/Overview.jsx";
@@ -11,7 +12,7 @@ import Wallet from "./pages/Wallet.jsx";
 import AdminShops from "./pages/admin/AdminShops.jsx";
 import AdminOrders from "./pages/admin/AdminOrders.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
-import { Loading } from "./components/ui.jsx";
+import { Btn, Empty } from "./components/ui.jsx";
 
 /** Garde d'acces : seuls marchands et admins entrent dans le dashboard. */
 function Gate() {
@@ -20,7 +21,10 @@ function Gate() {
   if (loading) {
     return (
       <div className="center-screen">
-        <Loading label="Verification du compte..." />
+        <div className="row">
+          <span className="brand-mark">Y</span>
+          <span className="spinner" />
+        </div>
       </div>
     );
   }
@@ -30,15 +34,17 @@ function Gate() {
   if (!isMerchant && !isAdmin) {
     return (
       <div className="center-screen">
-        <div className="card card-pad" style={{ maxWidth: 400, textAlign: "center" }}>
-          <h2>Acces reserve</h2>
-          <p className="muted small">
-            Ce compte n'est rattache a aucune boutique. Le dashboard est reserve
-            aux marchands et aux administrateurs.
-          </p>
-          <button className="btn block" onClick={logout} type="button">
-            Se deconnecter
-          </button>
+        <div className="card" style={{ maxWidth: 420 }}>
+          <Empty
+            icon="alert"
+            title="Acces reserve"
+            hint="Ce compte n'est rattache a aucune boutique. Le dashboard est reserve aux marchands et aux administrateurs."
+            action={
+              <Btn icon="logout" onClick={logout}>
+                Se deconnecter
+              </Btn>
+            }
+          />
         </div>
       </div>
     );
@@ -70,9 +76,11 @@ function Gate() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Gate />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <Gate />
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

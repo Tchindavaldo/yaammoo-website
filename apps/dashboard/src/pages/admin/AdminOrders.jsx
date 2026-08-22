@@ -1,5 +1,6 @@
 // Admin — vue transverse de toutes les commandes de la plateforme.
-// Le backend n'expose pas d'endpoint global : on agrege par boutique.
+// Le backend n'expose pas d'endpoint global : on agrege boutique par boutique.
+// Ici le tableau est la bonne forme — c'est un journal, pas un plan de travail.
 import { useEffect, useMemo, useState } from "react";
 import {
   adminService,
@@ -11,7 +12,20 @@ import {
   STATUS_MAP,
   todayISO,
 } from "@yaammoo/shared";
-import { Stat, Empty, Loading, Chip, StatusPill } from "../../components/ui.jsx";
+import {
+  Alert,
+  Avatar,
+  Btn,
+  Empty,
+  Kpi,
+  KpiBand,
+  Segmented,
+  SkTable,
+  StatusPill,
+} from "../../components/ui.jsx";
+
+const DONE = ["completed", "finished", "delivered"];
+const LIMIT = 300;
 
 export default function AdminOrders() {
   const [shops, setShops] = useState([]);
@@ -59,45 +73,41 @@ export default function AdminOrders() {
   );
 
   const revenue = orders
-    .filter((o) => ["completed", "finished", "delivered"].includes(o.status))
+    .filter((o) => DONE.includes(o.status))
     .reduce((acc, o) => acc + orderTotal(o), 0);
 
   const todayCount = orders.filter((o) => orderDateISO(o) === todayISO()).length;
 
-  if (loading) return <Loading label="Agregation des commandes..." />;
-  if (error)
-    return (
-      <div className="card card-pad" style={{ color: "var(--danger)" }}>
-        ❌ {error}
-      </div>
-    );
+  const tabs = STATUS_TABS.map((t) => ({
+    key: t.key,
+    label: t.label,
+    count: orders.filter((o) => t.statuses.includes(o.status)).length,
+  }));
+
+  if (loading) return <SkTable rows={8} cols={6} />;
+  if (error) return <Alert>{error}</Alert>;
 
   return (
     <>
-      <div className="stat-grid">
-        <Stat label="Commandes totales" value={orders.length} />
-        <Stat label="Aujourd'hui" value={todayCount} />
-        <Stat label="Volume traite" value={formatXAF(revenue)} small />
-        <Stat label="Boutiques actives" value={shops.length} />
-      </div>
+      <KpiBand>
+        <Kpi
+          lead
+          icon="chart"
+          label="Volume traite"
+          value={formatXAF(revenue)}
+          foot={`${orders.length} commande(s) sur ${shops.length} boutique(s)`}
+        />
+        <Kpi icon="orders" label="Commandes totales" value={orders.length} />
+        <Kpi icon="clock" label="Aujourd'hui" value={todayCount} />
+        <Kpi icon="shops" label="Boutiques actives" value={shops.length} />
+      </KpiBand>
 
-      <div className="row-between" style={{ marginBottom: 13 }}>
-        <div className="chip-row">
-          {STATUS_TABS.map((t) => (
-            <Chip
-              key={t.key}
-              active={statusKey === t.key}
-              onClick={() => setStatusKey(t.key)}
-              count={orders.filter((o) => t.statuses.includes(o.status)).length}
-            >
-              {t.label}
-            </Chip>
-          ))}
-        </div>
-        <div className="row">
+      <div className="toolbar">
+        <Segmented options={tabs} value={statusKey} onChange={setStatusKey} />
+        <div className="toolbar-end">
           <select
             className="input"
-            style={{ width: 195 }}
+            style={{ width: 200 }}
             value={shopId}
             onChange={(e) => setShopId(e.target.value)}
           >
@@ -111,21 +121,32 @@ export default function AdminOrders() {
           <input
             className="input"
             type="date"
-            style={{ width: 160 }}
+            style={{ width: 158 }}
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-          {date && (
-            <button className="btn sm" onClick={() => setDate("")} type="button">
-              Toutes dates
-            </button>
+          {(date || shopId) && (
+            <Btn
+              size="sm"
+              icon="close"
+              onClick={() => {
+                setDate("");
+                setShopId("");
+              }}
+            >
+              Reinitialiser
+            </Btn>
           )}
         </div>
       </div>
 
       <div className="card">
         {filtered.length === 0 ? (
-          <Empty title="Aucune commande pour ces filtres" />
+          <Empty
+            icon="inbox"
+            title="Aucune commande pour ces filtres"
+            hint="Elargissez la periode ou changez de boutique."
+          />
         ) : (
           <div className="table-wrap">
             <table className="table">
@@ -140,19 +161,26 @@ export default function AdminOrders() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.slice(0, 300).map((o) => (
+                {filtered.slice(0, LIMIT).map((o) => (
                   <tr key={o.id}>
-                    <td className="small">{formatFullDate(orderDateISO(o))}</td>
-                    <td className="truncate" style={{ maxWidth: 160 }}>
+                    <td className="small nowrap">{formatFullDate(orderDateISO(o))}</td>
+                    <td className="truncate" style={{ maxWidth: 170 }}>
                       {shopName(o.fastFoodId)}
                     </td>
-                    <td className="truncate" style={{ maxWidth: 150 }}>
-                      {o.userData?.infos?.nom || o.userData?.email || "Client"}
+                    <td>
+                      <span className="client-cell">
+                        <Avatar
+                          name={o.userData?.infos?.nom || o.userData?.email || "Client"}
+                        />
+                        <span className="truncate" style={{ maxWidth: 130 }}>
+                          {o.userData?.infos?.nom || o.userData?.email || "Client"}
+                        </span>
+                      </span>
                     </td>
-                    <td className="truncate" style={{ maxWidth: 180 }}>
+                    <td className="truncate" style={{ maxWidth: 190 }}>
                       {o.menu?.titre || o.menu?.name || "Menu"}
                     </td>
-                    <td className="right mono">{formatXAF(orderTotal(o))}</td>
+                    <td className="right num strong">{formatXAF(orderTotal(o))}</td>
                     <td>
                       <StatusPill status={o.status} />
                     </td>
@@ -160,10 +188,9 @@ export default function AdminOrders() {
                 ))}
               </tbody>
             </table>
-            {filtered.length > 300 && (
-              <div className="small dim" style={{ padding: 12, textAlign: "center" }}>
-                300 premieres lignes affichees sur {filtered.length}. Affinez les
-                filtres.
+            {filtered.length > LIMIT && (
+              <div className="card-foot small dim" style={{ textAlign: "center" }}>
+                {LIMIT} premieres lignes sur {filtered.length}. Affinez les filtres.
               </div>
             )}
           </div>

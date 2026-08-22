@@ -14,6 +14,7 @@ son propre domaine Vercel, avec un package de code partage.
 |---|---|
 | [monorepo.md](./monorepo.md) | Structure du monorepo, workspaces, deploiement Vercel, sous-domaine |
 | [dashboard.md](./dashboard.md) | Dashboard : ecrans, contextes, routing, roles |
+| [design-system.md](./design-system.md) | Tokens, primitives, icones, graphes, regles de rendu |
 | [shared.md](./shared.md) | Package `@yaammoo/shared` : config, API, socket, logique commandes |
 
 ---
@@ -42,8 +43,9 @@ yaammoo-website/
 │       ├── src/
 │       │   ├── features/     # auth, merchant, orders, pos
 │       │   ├── pages/        # Overview, Orders, Pos, Menus, Wallet, admin/
-│       │   ├── components/   # DashboardLayout, ui.jsx
-│       │   └── styles.css    # design system dashboard
+│       │   ├── components/   # DashboardLayout, ui, icons, Chart, Toast
+│       │   ├── styles/       # design system decoupe (voir design-system.md)
+│       │   └── styles.css    # point d'entree des @import
 │       ├── index.html
 │       ├── vite.config.js
 │       └── vercel.json       # rewrite SPA
@@ -71,12 +73,18 @@ l'identique — pas reinventee :
 | Logique RN | Portage web |
 |---|---|
 | `utils/orderGroupKey.ts` | `packages/shared/src/orders/orderGroupKey.js` |
-| `OrderManagePanel` (onglets, filtres, groupage, rank) | `apps/dashboard/src/pages/Orders.jsx` + `orders/groupOrders.js` |
+| `OrderManagePanel` (filtres, groupage, rank, statuts) | `apps/dashboard/src/pages/Orders.jsx` + `orders/groupOrders.js` |
 | `MerchantOrderBottomSheet` (3 onglets) | `features/orders/OrderDetailModal.jsx` |
 | `MerchantContext` (upserts socket) | `features/merchant/MerchantContext.jsx` |
 | `merchantService.ts` | `packages/shared/src/api/merchantService.js` |
 | `walletStatsService.ts` | `merchantService.getWalletStats()` |
 | `OtherDatesNotice` | `untreatedCounts()` + bloc `.notice-row` |
+
+> La **logique** est reprise a l'identique ; la **forme** ne l'est pas. Un ecran
+> large ne se pilote pas comme un telephone : les onglets de statut du mobile
+> deviennent un board a trois colonnes, la liste de menus devient une grille de
+> vignettes, et la caisse gagne un rail de categories. Detail dans
+> [dashboard.md](./dashboard.md).
 
 **En plus de l'app mobile** : la **caisse (POS)** — le marchand cree une
 commande pour un client au comptoir et edite la facture / le bon de caisse —

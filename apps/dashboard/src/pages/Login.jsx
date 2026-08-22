@@ -1,7 +1,15 @@
-// Connexion dashboard — email/password ou Google, memes comptes que l'app RN.
+// Connexion — memes comptes que l'app mobile (Firebase email/mot de passe
+// ou Google). Ecran en deux volets : le contexte a gauche, le formulaire a droite.
 import { useState } from "react";
 import { useAuth } from "../features/auth/AuthContext.jsx";
-import { Field } from "../components/ui.jsx";
+import { Alert, Btn, Field } from "../components/ui.jsx";
+import { Icon } from "../components/icons.jsx";
+
+const POINTS = [
+  ["orders", "Suivez vos commandes en direct, du ticket a la livraison."],
+  ["pos", "Encaissez au comptoir et editez le bon de caisse a l'instant."],
+  ["wallet", "Gains, retraits et transactions au meme endroit."],
+];
 
 export default function Login() {
   const { loginEmail, loginGoogle, error, setError } = useAuth();
@@ -37,67 +45,80 @@ export default function Login() {
   const shown = localError || error;
 
   return (
-    <div className="center-screen">
-      <div className="card card-pad" style={{ width: 380 }}>
-        <div className="row" style={{ marginBottom: 18 }}>
-          <span className="sidebar-logo">Y</span>
-          <div>
-            <h2>Dashboard Yaammoo</h2>
-            <div className="small dim">Espace marchand et administration</div>
+    <div className="auth">
+      <aside className="auth-side">
+        <div className="row">
+          <span className="brand-mark">Y</span>
+          <span className="strong">Yaammoo</span>
+        </div>
+
+        <div className="auth-pitch">
+          <h2>La console de votre restaurant.</h2>
+          <p>
+            Tout ce que vous faites depuis l'application, en plus grand : le
+            board des commandes, la caisse et vos gains.
+          </p>
+          <div className="auth-points">
+            {POINTS.map(([icon, text]) => (
+              <div className="auth-point" key={icon}>
+                <Icon name={icon} size={17} />
+                <span>{text}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        <form onSubmit={submit}>
-          <Field label="Email">
-            <input
-              className="input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-            />
-          </Field>
-          <Field label="Mot de passe">
-            <input
-              className="input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </Field>
+        <div className="tiny auth-legal">Yaammoo · yaammoo.rauval.com</div>
+      </aside>
 
-          {shown && (
-            <div
-              className="small"
-              style={{ color: "var(--danger)", marginBottom: 12 }}
-            >
-              ❌ {shown}
-            </div>
-          )}
+      <main className="auth-main">
+        <div className="auth-card">
+          <div className="stacked auth-title">
+            <h1>Connexion</h1>
+            <span className="small dim">Espace marchand et administration</span>
+          </div>
 
-          <button className="btn primary block" disabled={busy} type="submit">
-            {busy ? "Connexion..." : "Se connecter"}
-          </button>
-        </form>
+          <form onSubmit={submit} className="stack">
+            <Field label="Email">
+              <input
+                className="input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                autoFocus
+                required
+              />
+            </Field>
+            <Field label="Mot de passe">
+              <input
+                className="input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </Field>
 
-        <div
-          className="small dim"
-          style={{ textAlign: "center", margin: "13px 0" }}
-        >
-          ou
+            {shown && <Alert>{shown}</Alert>}
+
+            <Btn variant="primary" size="lg" block disabled={busy} type="submit">
+              {busy ? "Connexion..." : "Se connecter"}
+            </Btn>
+          </form>
+
+          <div className="auth-sep">ou</div>
+
+          <Btn size="lg" block onClick={google} disabled={busy}>
+            Continuer avec Google
+          </Btn>
+
+          <p className="small dim auth-foot">
+            Utilisez le compte marchand de votre boutique.
+          </p>
         </div>
-
-        <button className="btn block" onClick={google} disabled={busy} type="button">
-          Continuer avec Google
-        </button>
-
-        <div className="small dim" style={{ marginTop: 16, textAlign: "center" }}>
-          Utilisez le compte marchand de votre boutique.
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
