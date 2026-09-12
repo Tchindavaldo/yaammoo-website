@@ -443,15 +443,23 @@
    exactement comme le <main> du design de reference. On neutralise donc le
    rembourrage de .content pour ne rien ajouter au design.
 
-   `height:100%` doit se propager sans rupture : dans le design l'ecran est
-   fils direct du <main>, et c'est cette hauteur connue qui permet aux deux
-   rangees de se partager la place (45% puis le reste). Sans elle, les
-   rangees retombent sur la hauteur de leur contenu. */
+   `.content` est un niveau que le design n'a pas : chez lui l'ecran est fils
+   direct du <main>. On le rend donc transparent — il prend exactement la
+   place restante (`flex:1` + `min-height:0`) et surtout PAS `height:100%`,
+   qui se calculerait sur la hauteur entiere du <main> sans deduire le
+   header : l'ecran depasserait alors par le bas. Ses enfants recoivent la
+   hauteur par le flux flex, ce qui suffit a `height:100%` plus bas. */
 .content.content-bare {
   padding: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* Le design ne declare NI line-height NI font-size sur body : tout herite
+     de `normal` (~1.2) et de 16px. Notre base impose 1.5 / 14px, ce qui rend
+     chaque ligne de texte ~25% plus haute — le titre, le sous-titre, les
+     chiffres des KPI — et decale tout le reste vers le bas de facon
+     cumulative. On revient donc aux valeurs du design sur cet ecran. */
+  line-height: normal;
+  font-size: 16px;
 }
 .content.content-bare > * {
   min-height: 0;
