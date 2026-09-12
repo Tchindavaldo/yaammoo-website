@@ -358,6 +358,9 @@
   background: var(--surface);
   border: 1px solid var(--rail-border);
   border-radius: var(--r-shell);
+  /* Comme le <main> du design : min-height:0 pour que les enfants en
+     `height:100%` aient une hauteur a laquelle se referer. */
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -512,6 +515,21 @@
     overflow-y: auto;
   }
 
+  /* Vue d'ensemble : le design garde la meme coque a toutes les tailles
+     (`height:100vh` sur la racine, `<main>` qui defile pour son compte).
+     Sans ce rappel, la coque mobile passe en `height:auto` et casse la
+     chaine de hauteur : les deux rangees s'etirent a la hauteur de leur
+     contenu et c'est la page entiere qui defile, ce que le design ne fait
+     jamais. */
+  .shell.shell-fixed {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .shell.shell-fixed .main {
+    overflow: hidden;
+  }
+
   .sidebar {
     position: fixed;
     left: var(--shell-pad);
@@ -566,6 +584,11 @@
   }
   .content {
     padding: 14px var(--gutter) 40px;
+  }
+  /* La Vue d'ensemble ne prend aucun rembourrage : le design gere lui-meme
+     ses gouttieres (26px) a l'interieur de l'ecran. */
+  .content.content-bare {
+    padding: 0;
   }
   .grid-stats {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

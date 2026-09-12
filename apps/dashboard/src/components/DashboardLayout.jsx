@@ -106,7 +106,11 @@ export default function DashboardLayout() {
     [],
   );
 
-  const shellClass = ["shell", drawer ? "drawer-open" : ""].filter(Boolean).join(" ");
+  // `shell-fixed` garde la coque du design (hauteur fixe, aucun defilement de
+   // page) a toutes les tailles d'ecran sur la Vue d'ensemble.
+  const shellClass = ["shell", drawer ? "drawer-open" : "", isOverview ? "shell-fixed" : ""]
+    .filter(Boolean)
+    .join(" ");
 
   // onClick du design : page <- id, sub <- null, et open ne bascule que si
   // l'item a des enfants.
@@ -213,7 +217,7 @@ export default function DashboardLayout() {
         </header>
         )}
 
-        {overrideFastFoodId && (
+        {overrideFastFoodId && !isOverview && (
           <div className="pilot-bar no-print">
             <Icon name="alert" size={15} />
             Vous pilotez <strong>{shopName}</strong> en tant qu'administrateur.
