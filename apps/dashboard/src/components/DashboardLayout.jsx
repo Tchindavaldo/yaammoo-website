@@ -22,13 +22,12 @@ const NAV_GROUPS = [
   {
     label: "PILOTAGE",
     items: [
-      { id: "overview", icon: "overview", label: "Vue d'ensemble" },
+      { id: "overview", icon: "overview", label: "Vue d'ensemble", to: "/overview" },
       {
         id: "orders",
         icon: "orders",
         label: "Commandes",
         count: "orders",
-        children: ["En attente", "En livraison", "Litiges"],
       },
     ],
   },
@@ -39,7 +38,6 @@ const NAV_GROUPS = [
         id: "shops",
         icon: "shops",
         label: "Boutiques",
-        children: ["Boutiques", "Marchands", "Validations"],
       },
       {
         id: "menus",
@@ -47,8 +45,6 @@ const NAV_GROUPS = [
         label: "Menus",
         to: "/",
         count: "menus",
-        children: ["Disponibles", "Indisponibles", "Categories"],
-        views: ["available", "unavailable", "categories"],
       },
       { id: "products", icon: "grid", label: "Produits" },
       { id: "delivery", icon: "bike", label: "Livraisons" },
@@ -77,14 +73,20 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
 
   const [drawer, setDrawer] = useState(false);
-  // Les trois etats du design. Menus est l'ecran courant et son sous-menu
-  // est ouvert d'emblee.
+  // Item actif du rail.
   const [page, setPage] = useState("menus");
-  const [open, setOpen] = useState("menus");
-  const [sub, setSub] = useState(null);
 
   // La navigation ferme le tiroir mobile.
   useEffect(() => setDrawer(false), [location.pathname, location.search]);
+
+  // La Vue d'ensemble reproduit le <main> du design : elle porte son propre
+  // header et son propre defilement, donc la barre haute partagee s'efface.
+  const isOverview = location.pathname === "/overview";
+
+  // L'item actif suit l'URL pour survivre a un rechargement.
+  useEffect(() => {
+    setPage(isOverview ? "overview" : "menus");
+  }, [isOverview]);
 
   const counts = { orders: orders.length, menus: menus?.length || 0 };
 
@@ -110,15 +112,12 @@ export default function DashboardLayout() {
   // l'item a des enfants.
   const selectItem = (item) => {
     setPage(item.id);
-    setSub(null);
-    if (item.children) setOpen((cur) => (cur === item.id ? null : item.id));
     if (item.to) navigate(item.to);
   };
 
   const renderItem = (item) => {
-    const { id, icon, label, to, count, children, views } = item;
+    const { id, icon, label, count } = item;
     const active = page === id;
-    const isOpen = Boolean(children) && open === id;
     const value = count ? counts[count] : 0;
 
     return (
@@ -133,31 +132,7 @@ export default function DashboardLayout() {
           </span>
           <span className="nav-label">{label}</span>
           {value > 0 && <span className="nav-count">{value}</span>}
-          {children && <span className="nav-toggle">{isOpen ? "−" : "+"}</span>}
         </button>
-
-        {isOpen && (
-          <div className="nav-children">
-            {children.map((childLabel, i) => {
-              const key = `${id}:${childLabel}`;
-              const view = views?.[i];
-              return (
-                <button
-                  key={childLabel}
-                  type="button"
-                  className={sub === key ? "nav-child active" : "nav-child"}
-                  onClick={() => {
-                    setSub(key);
-                    if (to && view) navigate(`${to}?vue=${view}`);
-                  }}
-                >
-                  <Icon name="folder" size={15} />
-                  <span className="nav-label">{childLabel}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
     );
   };
@@ -208,6 +183,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="main">
+        {!isOverview && (
         <header className="topbar no-print">
           <IconBtn
             icon="hamburger"
@@ -235,6 +211,7 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
+        )}
 
         {overrideFastFoodId && (
           <div className="pilot-bar no-print">
@@ -250,7 +227,7 @@ export default function DashboardLayout() {
           </div>
         )}
 
-        <div className="content">
+        <div className={isOverview ? "content content-bare" : "content"}>
           <Outlet />
         </div>
       </div>

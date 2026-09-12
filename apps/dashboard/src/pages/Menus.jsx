@@ -112,10 +112,8 @@ const Chevron = () => (
 );
 
 export default function Menus() {
-  const { menus, boutique, loading, addMenu } = useMerchant();
+  const { menus, boutique, loading, addMenu, updateMenu } = useMerchant();
   const [params, setParams] = useSearchParams();
-  // `editing` vaut null pour une creation, le menu a modifier sinon.
-  const [editing, setEditing] = useState(null);
   const [selId, setSelId] = useState(null);
   const [details, setDetails] = useState(true);
   const [sort, setSort] = useState(SORTS[0]);
@@ -143,9 +141,15 @@ export default function Menus() {
     return () => window.removeEventListener("keydown", onKey);
   }, [creating]);
 
-  const saveMenu = async (payload) => {
+  // Colonne 3 : modification du menu selectionne (PUT /menu/:id).
+  const saveEdit = async (payload) => {
+    if (!sel) return;
+    await updateMenu(sel._id || sel.id, payload);
+  };
+
+  // Panneau lateral : creation (POST /menu).
+  const saveNew = async (payload) => {
     await addMenu(payload);
-    setEditing(null);
   };
 
   // `list` du design : disponibles ou indisponibles, puis tri.
@@ -185,6 +189,33 @@ export default function Menus() {
     return () => ro.disconnect();
   }, [list.length, ROW_H]);
 
+  const creationPanel = creating && (
+    <>
+      <div className="mpanel-scrim" onClick={() => setCreating(false)} />
+      <aside className="mpanel" role="dialog" aria-label="Nouveau menu">
+        <div className="mpanel-head">
+          <span className="mpanel-title">Nouveau menu</span>
+          <button
+            type="button"
+            className="mpanel-close"
+            onClick={() => setCreating(false)}
+            aria-label="Fermer"
+          >
+            <Icon name="close" size={16} />
+          </button>
+        </div>
+        <ShopConfigRail
+          menu={null}
+          onSave={async (payload) => {
+            await saveNew(payload);
+            setCreating(false);
+          }}
+          onCancel={() => setCreating(false)}
+        />
+      </aside>
+    </>
+  );
+
   if (loading && menus.length === 0) return <SkCards />;
 
   if (!menus.length) {
@@ -199,14 +230,13 @@ export default function Menus() {
               variant="primary"
               size="sm"
               icon="plus"
-              onClick={() => {
-                setEditing(null);
-              }}
+              onClick={() => setCreating(true)}
             >
               Ajouter un menu
             </Btn>
           }
         />
+        {creationPanel}
       </div>
     );
   }
@@ -387,40 +417,18 @@ export default function Menus() {
 
         {/* ── Colonne droite : rail boutique ────────────────────────── */}
         <aside className="menus-rail">
-          <ShopConfigRail menu={editing} onSave={saveMenu} onCancel={() => setEditing(null)} />
+          {sel && (
+            <ShopConfigRail
+              key={sel.id}
+              menu={sel}
+              onSave={saveEdit}
+              onCancel={() => setSelId(list[0]?.id ?? null)}
+            />
+          )}
         </aside>
       </div>
 
-      {creating && (
-        <>
-          <div className="mpanel-scrim" onClick={() => setCreating(false)} />
-          <aside
-            className="mpanel"
-            role="dialog"
-            aria-label="Nouveau menu"
-          >
-            <div className="mpanel-head">
-              <span className="mpanel-title">Nouveau menu</span>
-              <button
-                type="button"
-                className="mpanel-close"
-                onClick={() => setCreating(false)}
-                aria-label="Fermer"
-              >
-                <Icon name="close" size={16} />
-              </button>
-            </div>
-            <ShopConfigRail
-              menu={null}
-              onSave={async (payload) => {
-                await saveMenu(payload);
-                setCreating(false);
-              }}
-              onCancel={() => setCreating(false)}
-            />
-          </aside>
-        </>
-      )}
+      {creationPanel}
     </>
   );
 }

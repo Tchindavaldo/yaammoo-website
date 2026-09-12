@@ -5,6 +5,7 @@ import { ToastProvider } from "./components/Toast.jsx";
 import DashboardLayout from "./components/DashboardLayout.jsx";
 import Login from "./pages/Login.jsx";
 import Menus from "./pages/Menus.jsx";
+import Overview from "./pages/Overview.jsx";
 import { Btn, Empty } from "./components/ui.jsx";
 
 /** Garde d'acces : seuls marchands et admins entrent dans le dashboard. */
@@ -51,6 +52,7 @@ function Gate() {
         <Route element={<DashboardLayout />}>
           <Route index element={<Menus />} />
           <Route path="menus" element={<Menus />} />
+          <Route path="overview" element={<Overview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

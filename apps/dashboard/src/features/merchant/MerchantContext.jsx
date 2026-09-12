@@ -164,6 +164,14 @@ export function MerchantProvider({ children }) {
     [fastFoodId, fetchData],
   );
 
+  const updateMenu = useCallback(
+    async (menuId, menu) => {
+      await merchantService.updateMenu(menuId, menu);
+      await fetchData(false);
+    },
+    [fetchData],
+  );
+
   const stats = useMemo(
     () => ({
       totalOrders: orders.length,
@@ -193,6 +201,7 @@ export function MerchantProvider({ children }) {
     updateStatus,
     delegateOrder,
     addMenu,
+    updateMenu,
     stats,
   };
 

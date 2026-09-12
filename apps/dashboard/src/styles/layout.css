@@ -436,6 +436,15 @@
   overflow: hidden;
 }
 
+/* Vue d'ensemble : l'ecran porte son propre header et son propre defilement,
+   exactement comme le <main> du design de reference. On neutralise donc le
+   rembourrage de .content pour ne rien ajouter au design. */
+.content.content-bare {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .menu-btn {
   display: none;
 }

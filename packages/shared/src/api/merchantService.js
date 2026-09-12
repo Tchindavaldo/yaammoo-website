@@ -27,6 +27,12 @@ export const merchantService = {
     await http.post("/menu", { ...menu, fastFoodId });
   },
 
+  /** Modification d'un menu — PUT /menu/:id, meme payload que la creation
+      (voir handleSave dans MenuManagePanel.tsx cote app mobile). */
+  async updateMenu(menuId, menu) {
+    await http.put(`/menu/${menuId}`, menu);
+  },
+
   async getTransactions(userId) {
     const res = await http.get(`/transaction/${userId}`);
     return res.data.data || [];
