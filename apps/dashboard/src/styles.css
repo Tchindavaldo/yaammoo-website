@@ -14,8 +14,7 @@
 
 @import "./styles/layout.css";
 
-@import "./styles/board.css";
-@import "./styles/pos.css";
+@import "./styles/menus.css";
 @import "./styles/screens.css";
 
 @import "./styles/print.css";

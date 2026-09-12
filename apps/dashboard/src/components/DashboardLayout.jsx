@@ -1,91 +1,166 @@
-// Coque du dashboard : barre laterale repliable, barre haute contextuelle,
-// bandeau de pilotage quand un admin travaille sur une autre boutique.
-import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { STATUS_MAP } from "@yaammoo/shared";
+// Coque du dashboard : rail lateral et barre haute repris a l'identique du
+// design de reference « Dashboard Menu md screen v3 ».
+//
+// La machine d'etat de la navigation est celle du design, reprise telle
+// quelle (voir navGroupsData() dans le fichier .dc.html) :
+//   page : item actif — tout item clique le devient, avec ou sans enfants
+//   open : item dont le sous-menu est deplie — un seul a la fois
+//   sub  : sous-entree active, remise a null des qu'on clique un parent
+// Un item sans enfants laisse `open` inchange : ouvrir un sous-menu puis
+// cliquer ailleurs ne le referme pas, exactement comme le design.
+import { useEffect, useMemo, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext.jsx";
 import { useMerchant } from "../features/merchant/MerchantContext.jsx";
 import { Icon } from "./icons.jsx";
 import { Avatar, IconBtn } from "./ui.jsx";
 
-const PAGES = {
-  "/": ["Vue d'ensemble", "Activite de la boutique aujourd'hui"],
-  "/commandes": ["Commandes", "Suivi et avancement des tickets"],
-  "/caisse": ["Caisse", "Encaisser au comptoir et editer la facture"],
-  "/menus": ["Menus", "Catalogue de la boutique"],
-  "/portefeuille": ["Portefeuille", "Gains, retraits et transactions"],
-  "/admin/boutiques": ["Boutiques", "Toutes les boutiques de la plateforme"],
-  "/admin/commandes": ["Commandes plateforme", "Vue transverse toutes boutiques"],
-  "/admin/utilisateurs": ["Utilisateurs", "Comptes marchands et clients"],
-};
-
-const NAV = [
-  { to: "/", icon: "overview", label: "Vue d'ensemble", end: true },
-  { to: "/commandes", icon: "orders", label: "Commandes", badge: "pending" },
-  { to: "/caisse", icon: "pos", label: "Caisse" },
-  { to: "/menus", icon: "menus", label: "Menus" },
-  { to: "/portefeuille", icon: "wallet", label: "Portefeuille" },
+// Items repris un pour un du design, dans le meme ordre.
+// `count` nomme un compteur calcule au rendu ; `to` la route quand l'ecran
+// existe — les autres items restent cliquables dans le rail.
+const NAV_GROUPS = [
+  {
+    label: "PILOTAGE",
+    items: [
+      { id: "overview", icon: "overview", label: "Vue d'ensemble" },
+      {
+        id: "orders",
+        icon: "orders",
+        label: "Commandes",
+        count: "orders",
+        children: ["En attente", "En livraison", "Litiges"],
+      },
+    ],
+  },
+  {
+    label: "CATALOGUE",
+    items: [
+      {
+        id: "shops",
+        icon: "shops",
+        label: "Boutiques",
+        children: ["Boutiques", "Marchands", "Validations"],
+      },
+      {
+        id: "menus",
+        icon: "menus",
+        label: "Menus",
+        to: "/",
+        count: "menus",
+        children: ["Disponibles", "Indisponibles", "Categories"],
+        views: ["available", "unavailable", "categories"],
+      },
+      { id: "products", icon: "grid", label: "Produits" },
+      { id: "delivery", icon: "bike", label: "Livraisons" },
+    ],
+  },
+  {
+    label: "FINANCES",
+    items: [
+      { id: "payments", icon: "wallet", label: "Paiements & wallet" },
+      { id: "fees", icon: "percent", label: "Frais & commissions" },
+    ],
+  },
 ];
 
-const ADMIN_NAV = [
-  { to: "/admin/boutiques", icon: "shops", label: "Boutiques" },
-  { to: "/admin/commandes", icon: "chart", label: "Commandes plateforme" },
-  { to: "/admin/utilisateurs", icon: "users", label: "Utilisateurs" },
+const FOOT_LINKS = [
+  { icon: "support", label: "Support" },
+  { icon: "settings", label: "Parametres" },
+  { icon: "team", label: "Equipe" },
 ];
 
 export default function DashboardLayout() {
   const { userData, logout, isAdmin } = useAuth();
-  const { orders, boutique, loading, overrideFastFoodId, setOverrideFastFoodId, refresh } =
+  const { orders, menus, boutique, loading, overrideFastFoodId, setOverrideFastFoodId } =
     useMerchant();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [collapsed, setCollapsed] = useState(
-    () => localStorage.getItem("yam.sidebar") === "collapsed",
-  );
   const [drawer, setDrawer] = useState(false);
+  // Les trois etats du design. Menus est l'ecran courant et son sous-menu
+  // est ouvert d'emblee.
+  const [page, setPage] = useState("menus");
+  const [open, setOpen] = useState("menus");
+  const [sub, setSub] = useState(null);
 
   // La navigation ferme le tiroir mobile.
-  useEffect(() => setDrawer(false), [location.pathname]);
+  useEffect(() => setDrawer(false), [location.pathname, location.search]);
 
-  const toggleCollapse = () => {
-    setCollapsed((c) => {
-      localStorage.setItem("yam.sidebar", c ? "expanded" : "collapsed");
-      return !c;
-    });
+  const counts = { orders: orders.length, menus: menus?.length || 0 };
+
+  const shopName = boutique?.name || boutique?.nom || "Ma boutique";
+  const accountName = userData?.infos?.nom || userData?.infos?.email || "Compte";
+  const shortName = accountName.split(" ").slice(0, 2).join(" ");
+
+  // Date du jour en toutes lettres, comme le sous-titre du design.
+  const today = useMemo(
+    () =>
+      new Date().toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+    [],
+  );
+
+  const shellClass = ["shell", drawer ? "drawer-open" : ""].filter(Boolean).join(" ");
+
+  // onClick du design : page <- id, sub <- null, et open ne bascule que si
+  // l'item a des enfants.
+  const selectItem = (item) => {
+    setPage(item.id);
+    setSub(null);
+    if (item.children) setOpen((cur) => (cur === item.id ? null : item.id));
+    if (item.to) navigate(item.to);
   };
 
-  const pendingCount = orders.filter((o) =>
-    STATUS_MAP.pending.includes(o.status),
-  ).length;
+  const renderItem = (item) => {
+    const { id, icon, label, to, count, children, views } = item;
+    const active = page === id;
+    const isOpen = Boolean(children) && open === id;
+    const value = count ? counts[count] : 0;
 
-  const [title, subtitle] = PAGES[location.pathname] || ["Dashboard", ""];
-  const shopName = boutique?.name || boutique?.nom || "Ma boutique";
-  const accountName =
-    userData?.infos?.nom || userData?.infos?.email || "Compte";
+    return (
+      <div key={id}>
+        <button
+          type="button"
+          className={active ? "nav-item active" : "nav-item"}
+          onClick={() => selectItem(item)}
+        >
+          <span className="nav-icon">
+            <Icon name={icon} size={17} />
+          </span>
+          <span className="nav-label">{label}</span>
+          {value > 0 && <span className="nav-count">{value}</span>}
+          {children && <span className="nav-toggle">{isOpen ? "−" : "+"}</span>}
+        </button>
 
-  const shellClass = [
-    "shell",
-    collapsed ? "collapsed" : "",
-    drawer ? "drawer-open" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const navLink = ({ to, icon, label, end, badge }) => (
-    <NavLink
-      key={to}
-      to={to}
-      end={end}
-      title={collapsed ? label : undefined}
-      className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}
-    >
-      <Icon name={icon} size={17} />
-      <span className="nav-label">{label}</span>
-      {badge === "pending" && pendingCount > 0 && (
-        <span className="badge badge-accent">{pendingCount}</span>
-      )}
-    </NavLink>
-  );
+        {isOpen && (
+          <div className="nav-children">
+            {children.map((childLabel, i) => {
+              const key = `${id}:${childLabel}`;
+              const view = views?.[i];
+              return (
+                <button
+                  key={childLabel}
+                  type="button"
+                  className={sub === key ? "nav-child active" : "nav-child"}
+                  onClick={() => {
+                    setSub(key);
+                    if (to && view) navigate(`${to}?vue=${view}`);
+                  }}
+                >
+                  <Icon name="folder" size={15} />
+                  <span className="nav-label">{childLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={shellClass}>
@@ -96,51 +171,39 @@ export default function DashboardLayout() {
           <span className="brand-mark">Y</span>
           <span className="brand-text">
             <span className="brand-name">Yaammoo</span>
-            <span className="brand-sub">Console marchand</span>
+            <span className="brand-sub">CONSOLE ADMIN</span>
           </span>
         </div>
 
-        <button
-          type="button"
-          className="shop-switch"
-          onClick={() => setOverrideFastFoodId(null)}
-          disabled={!overrideFastFoodId}
-          title={shopName}
-        >
-          <Avatar name={shopName} className="shop-avatar" />
-          <span className="shop-meta">
-            <span className="shop-name truncate">{shopName}</span>
-            <span className="shop-role">
-              {overrideFastFoodId ? "Pilotage admin" : isAdmin ? "Admin" : "Marchand"}
-            </span>
-          </span>
-        </button>
-
         <nav className="sidebar-nav">
-          <div className="nav-section">Boutique</div>
-          {NAV.map(navLink)}
-          {isAdmin && (
-            <>
-              <div className="nav-section">Plateforme</div>
-              {ADMIN_NAV.map(navLink)}
-            </>
-          )}
+          {NAV_GROUPS.map((g) => (
+            <div className="nav-group" key={g.label}>
+              <div className="nav-section">{g.label}</div>
+              {g.items.map(renderItem)}
+            </div>
+          ))}
         </nav>
 
+        <div className="sidebar-spacer" />
+
         <div className="sidebar-foot">
+          {FOOT_LINKS.map((f) => (
+            <button type="button" key={f.label} className="nav-foot">
+              <Icon name={f.icon} size={17} />
+              <span>{f.label}</span>
+            </button>
+          ))}
+
           <div className="account">
             <Avatar name={accountName} />
             <span className="stacked grow account-meta">
-              <span className="small strong truncate">{accountName}</span>
-              <span className="tiny dim truncate">
-                {isAdmin ? "Admin plateforme" : shopName}
+              <span className="account-name truncate">{accountName}</span>
+              <span className="account-role truncate">
+                {overrideFastFoodId ? "Pilotage admin" : isAdmin ? "Admin" : shopName}
               </span>
             </span>
+            <IconBtn icon="exit" label="Se deconnecter" size="sm" onClick={logout} />
           </div>
-          <button type="button" className="nav-item" onClick={logout}>
-            <Icon name="logout" size={17} />
-            <span className="nav-label">Se deconnecter</span>
-          </button>
         </div>
       </aside>
 
@@ -152,16 +215,12 @@ export default function DashboardLayout() {
             className="menu-btn"
             onClick={() => setDrawer(true)}
           />
-          <IconBtn
-            icon="panel"
-            label={collapsed ? "Deplier le menu" : "Replier le menu"}
-            className="collapse-btn"
-            onClick={toggleCollapse}
-          />
 
           <div className="topbar-title">
-            <h1 className="truncate">{title}</h1>
-            {subtitle && <span className="topbar-sub truncate">{subtitle}</span>}
+            <h1 className="truncate">Gestion des menus</h1>
+            <span className="topbar-sub truncate">
+              {today} &nbsp;&middot;&nbsp; Catalogue des plats
+            </span>
           </div>
 
           <div className="topbar-actions">
@@ -169,12 +228,11 @@ export default function DashboardLayout() {
               <span className="live-dot" />
               {loading ? "Sync..." : "En direct"}
             </span>
-            <span className="topbar-sep" />
-            <IconBtn
-              icon="refresh"
-              label="Actualiser"
-              onClick={() => refresh(true)}
-            />
+            <div className="topbar-account" title={accountName}>
+              <Avatar name={accountName} className="topbar-avatar" />
+              <span className="truncate">{shortName}</span>
+              <Icon name="chevronDown" size={13} />
+            </div>
           </div>
         </header>
 

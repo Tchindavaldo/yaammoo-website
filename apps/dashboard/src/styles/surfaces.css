@@ -54,12 +54,12 @@
   align-items: center;
   gap: 7px;
   font-size: 12px;
-  font-weight: 560;
+  font-weight: 500;
   color: var(--text-dim);
 }
 .kpi-value {
   font-size: 24px;
-  font-weight: 660;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.028em;
   font-variant-numeric: tabular-nums;
@@ -102,7 +102,7 @@
   background: var(--surface-3);
   color: var(--text-soft);
   font-size: 11px;
-  font-weight: 660;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .badge-accent {
@@ -125,7 +125,7 @@
   background: var(--surface-2);
   color: var(--text-soft);
   font-size: 12px;
-  font-weight: 570;
+  font-weight: 500;
   white-space: nowrap;
 }
 .pill::before {
@@ -182,7 +182,7 @@
   border-bottom: 1px solid var(--border);
   color: var(--text-dim);
   font-size: 11.5px;
-  font-weight: 620;
+  font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;

@@ -4,14 +4,7 @@ import { MerchantProvider } from "./features/merchant/MerchantContext.jsx";
 import { ToastProvider } from "./components/Toast.jsx";
 import DashboardLayout from "./components/DashboardLayout.jsx";
 import Login from "./pages/Login.jsx";
-import Overview from "./pages/Overview.jsx";
-import Orders from "./pages/Orders.jsx";
-import Pos from "./pages/Pos.jsx";
 import Menus from "./pages/Menus.jsx";
-import Wallet from "./pages/Wallet.jsx";
-import AdminShops from "./pages/admin/AdminShops.jsx";
-import AdminOrders from "./pages/admin/AdminOrders.jsx";
-import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import { Btn, Empty } from "./components/ui.jsx";
 
 /** Garde d'acces : seuls marchands et admins entrent dans le dashboard. */
@@ -50,22 +43,14 @@ function Gate() {
     );
   }
 
+  // Le dashboard est reduit au seul ecran Menus : toute autre adresse y
+  // revient plutot que d'afficher une page vide.
   return (
     <MerchantProvider>
       <Routes>
         <Route element={<DashboardLayout />}>
-          <Route index element={<Overview />} />
-          <Route path="commandes" element={<Orders />} />
-          <Route path="caisse" element={<Pos />} />
+          <Route index element={<Menus />} />
           <Route path="menus" element={<Menus />} />
-          <Route path="portefeuille" element={<Wallet />} />
-          {isAdmin && (
-            <>
-              <Route path="admin/boutiques" element={<AdminShops />} />
-              <Route path="admin/commandes" element={<AdminOrders />} />
-              <Route path="admin/utilisateurs" element={<AdminUsers />} />
-            </>
-          )}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

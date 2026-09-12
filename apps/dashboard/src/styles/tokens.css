@@ -32,30 +32,40 @@
   --n-950: #080d16;
 
   /* Surfaces — trois niveaux d'elevation */
-  --bg: var(--n-50);
+  --bg: #eef0f3;
   --surface: var(--n-0);
-  --surface-2: var(--n-100);
-  --surface-3: var(--n-200);
-  --surface-inset: var(--n-50);
+  --surface-2: #f8fafc;
+  --surface-3: #eceef2;
+  --surface-inset: #f8fafc;
+
+  /* Rail lateral — degrade clair du design de reference */
+  --rail: linear-gradient(180deg, #f7f8fa, #eceef2);
+  --rail-border: #e6e9ee;
+  --rail-hover: #e7eaef;
+  --rail-rule: #e2e6ec;
+  --rail-sub-rule: #d5dae1;
+  /* Pastille d'icone de l'element actif */
+  --nav-active-ink: #1b1f27;
   --overlay: rgba(15, 23, 42, 0.44);
 
   /* Traits */
-  --border: #e6ebf1;
+  --border: #e6e9ee;
   --border-strong: var(--n-300);
   --border-focus: var(--brand-500);
 
   /* Encre */
-  --text: var(--n-900);
-  --text-soft: var(--n-600);
-  --text-dim: var(--n-500);
-  --text-faint: var(--n-400);
+  --text: #1b1f27;
+  --text-strong: #14161a;
+  --text-soft: #4c5361;
+  --text-dim: #8a919e;
+  --text-faint: #a2aab6;
   --text-invert: var(--n-0);
 
   /* Accent applique */
   --accent: var(--brand-500);
   --accent-hover: var(--brand-600);
   --accent-ink: #ffffff;
-  --accent-soft: var(--brand-50);
+  --accent-soft: #fdece6;
   --accent-soft-ink: var(--brand-700);
   --accent-ring: rgba(236, 73, 19, 0.32);
 
@@ -97,9 +107,12 @@
 
   /* Coque */
   --sidebar-w: 250px;
-  --sidebar-w-collapsed: 68px;
   --topbar-h: 60px;
-  --gutter: 24px;
+  --gutter: 26px;
+  /* Marge exterieure de la coque : le rail et le panneau flottent dessus */
+  --shell-pad: 14px;
+  --shell-gap: 14px;
+  --r-shell: 22px;
 
   /* Mouvement */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -107,8 +120,7 @@
   --slow: 260ms var(--ease);
 
   /* Typographie */
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font: "Rubik", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -122,12 +134,20 @@
   --surface-2: #1a2333;
   --surface-3: #232f42;
   --surface-inset: #0d131f;
+
+  --rail: linear-gradient(180deg, #141d2b, #0f1724);
+  --rail-border: #212c3e;
+  --rail-hover: #1f2a3b;
+  --rail-rule: #1c2534;
+  --rail-sub-rule: #2a3548;
+  --nav-active-ink: #eef2f8;
   --overlay: rgba(3, 7, 14, 0.66);
 
   --border: #212c3e;
   --border-strong: #33415a;
 
   --text: #eef2f8;
+  --text-strong: #ffffff;
   --text-soft: #b3c0d1;
   --text-dim: #8593a8;
   --text-faint: #63708a;

@@ -1,63 +1,87 @@
-/* Coque : barre laterale, barre haute, zone de contenu. */
+/* Coque : rail lateral, panneau principal, barre haute, zone de contenu.
+
+   Refonte alignee sur « Dashboard Menu md screen v3 » : la page est un fond
+   gris, le rail et le panneau principal sont deux cartes arrondies qui
+   flottent dessus avec une gouttiere constante. Le rail groupe la navigation
+   par section, chaque entree est une pilule, et l'entree active se reconnait
+   a la pastille sombre derriere son icone. */
 
 .shell {
   display: flex;
-  min-height: 100vh;
+  align-items: stretch;
+  gap: var(--shell-gap);
+  /* La coque tient exactement dans la fenetre : c'est .content qui defile,
+     pas la page. Le rail et le panneau gardent ainsi leurs coins arrondis
+     visibles en permanence. */
+  height: 100vh;
+  padding: var(--shell-pad);
+  overflow: hidden;
+  background: var(--bg);
+  box-sizing: border-box;
 }
 
-/* ── Barre laterale ───────────────────────────────────────────────────── */
+/* ── Rail lateral ─────────────────────────────────────────────────────── */
 
 .sidebar {
   position: sticky;
-  top: 0;
+  top: var(--shell-pad);
   z-index: 40;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  gap: 18px;
+  flex: 0 0 var(--sidebar-w);
   width: var(--sidebar-w);
-  height: 100vh;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  transition: width var(--slow);
+  height: calc(100vh - var(--shell-pad) * 2);
+  align-self: flex-start;
+  padding: 20px 18px;
+  /* Le rail defile pour son compte : deplier un sous-menu allonge la nav
+     sans jamais pousser le pied ni le reste de la page. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  box-sizing: border-box;
+  background: var(--rail);
+  border: 1px solid var(--rail-border);
+  border-radius: var(--r-shell);
 }
-.shell.collapsed .sidebar {
-  width: var(--sidebar-w-collapsed);
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: var(--topbar-h);
-  padding: 0 14px;
+  gap: 11px;
   flex-shrink: 0;
 }
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
-  border-radius: var(--r-sm);
+  border-radius: 10px;
   background: var(--accent);
   color: var(--accent-ink);
-  font-size: 14px;
-  font-weight: 750;
-  letter-spacing: -0.03em;
+  font-size: 17px;
+  font-weight: 600;
 }
 .brand-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .brand-name {
-  font-size: 14.5px;
-  font-weight: 660;
-  letter-spacing: -0.015em;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
 }
 .brand-sub {
-  font-size: 11px;
+  font-size: 11.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
   color: var(--text-dim);
 }
 
@@ -65,28 +89,29 @@
 .shop-switch {
   display: flex;
   align-items: center;
-  gap: 9px;
-  width: calc(100% - 20px);
-  margin: 0 10px 6px;
-  padding: 8px 10px;
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--rail-border);
+  border-radius: 14px;
+  background: var(--surface);
   text-align: left;
-  transition: background var(--fast);
+  transition: border-color var(--fast);
 }
-.shop-switch:hover {
-  background: var(--surface-3);
+.shop-switch:hover:not(:disabled) {
+  border-color: var(--border-strong);
 }
 .shop-avatar {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  border-radius: var(--r-xs);
+  border-radius: var(--r-full);
   background: var(--accent-soft);
   color: var(--accent-soft-ink);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
 }
 .shop-meta {
@@ -96,161 +121,275 @@
   line-height: 1.25;
 }
 .shop-name {
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 500;
 }
 .shop-role {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-dim);
 }
 
+/* ── Navigation groupee ───────────────────────────────────────────────── */
+
 .sidebar-nav {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  flex: 0 0 auto;
+}
+
+/* Un groupe = un intitule + ses entrees, chacun precede d'un filet — le
+   premier groupe compris, comme dans le design. */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 0 14px;
+  border-top: 1px solid var(--rail-rule);
 }
 .nav-section {
-  padding: 15px 10px 6px;
-  font-size: 10.5px;
-  font-weight: 660;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.7px;
   color: var(--text-faint);
 }
 
 .nav-item {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 34px;
-  padding: 0 10px;
-  border-radius: var(--r-sm);
-  color: var(--text-soft);
-  font-size: 13.5px;
-  font-weight: 550;
-  transition:
-    background var(--fast),
-    color var(--fast);
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border-radius: var(--r-full);
+  color: #4c5361;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
 }
 .nav-item:hover {
-  background: var(--surface-2);
-  color: var(--text);
+  background: #e7eaef;
+  color: #1b1f27;
 }
 .nav-item.active {
-  background: var(--accent-soft);
-  color: var(--accent-soft-ink);
-  font-weight: 620;
+  color: var(--text);
+  font-weight: 500;
 }
-/* Repere vertical : l'element actif se lit meme en niveaux de gris. */
-.nav-item.active::before {
-  content: "";
-  position: absolute;
-  left: -10px;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  border-radius: 0 var(--r-full) var(--r-full) 0;
-  background: var(--accent);
+
+/* Pastille d'icone : c'est elle qui porte l'etat actif, pas un aplat de
+   couleur sur toute la pilule. Lisible aussi en niveaux de gris. */
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 9px;
+  background: transparent;
+  color: #6b7280;
 }
-.nav-item svg {
-  color: currentColor;
-  opacity: 0.85;
+.nav-item.active .nav-icon {
+  background: #1b1f27;
+  color: #ffffff;
 }
-.nav-item .badge {
-  margin-left: auto;
-}
+
 .nav-label {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.nav-count {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+.nav-item.active .nav-count {
+  color: var(--accent);
+}
+.nav-toggle {
+  flex: 0 0 auto;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+/* Sous-entrees : reliees a leur parent par un filet vertical. */
+.nav-children {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 6px 0 8px 21px;
+  padding-left: 15px;
+  border-left: 1px solid var(--rail-sub-rule);
+}
+.nav-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+  color: #5b6270;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.nav-child:hover {
+  background: #e7eaef;
+  color: #1b1f27;
+}
+.nav-child.active {
+  background: var(--surface);
+  border-color: var(--rail-border);
+  color: var(--text);
+  font-weight: 500;
+}
+.nav-child svg {
+  flex: 0 0 15px;
+  color: var(--text-dim);
+}
+
+/* ── Pied du rail ─────────────────────────────────────────────────────── */
+
+/* Pousse le pied en bas, comme le <div style="flex:1"> du design. */
+.sidebar-spacer {
+  flex: 1 0 auto;
+}
+
+/* Entrees de pied : meme gabarit que la nav, coins moins ronds. */
+.nav-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  color: var(--text-soft);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.nav-foot:hover {
+  background: #e7eaef;
+  color: #1b1f27;
+}
+.nav-foot svg {
+  flex: 0 0 17px;
+  color: var(--text-dim);
+}
 
 .sidebar-foot {
-  padding: 10px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
 }
 .account {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 6px 8px 10px;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--rail-border);
+  border-radius: 14px;
+  background: var(--surface);
   min-width: 0;
 }
+.account-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.account-role {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+.account .avatar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  background: #2f6fd0;
+  overflow: hidden;
+  /* La silhouette remplace les initiales : c'est le motif du design. */
+  color: transparent;
+  font-size: 0;
+}
+.account .avatar::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 999px 999px 0 0;
+  background: #1b2431;
+}
+
 .avatar {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--surface-3);
   color: var(--text-soft);
-  font-size: 12px;
-  font-weight: 660;
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
-/* En mode reduit, tout ce qui est texte disparait. */
-.shell.collapsed .brand-text,
-.shell.collapsed .nav-label,
-.shell.collapsed .nav-section,
-.shell.collapsed .shop-meta,
-.shell.collapsed .account-meta,
-.shell.collapsed .nav-item .badge {
-  display: none;
-}
-.shell.collapsed .nav-item,
-.shell.collapsed .shop-switch,
-.shell.collapsed .account {
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-}
-.shell.collapsed .nav-section {
-  height: 12px;
-}
 
-/* ── Barre haute ──────────────────────────────────────────────────────── */
+/* ── Panneau principal ────────────────────────────────────────────────── */
 
 .main {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--rail-border);
+  border-radius: var(--r-shell);
+  overflow: hidden;
 }
 
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: var(--topbar-h);
-  padding: 0 var(--gutter);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  backdrop-filter: saturate(1.6) blur(10px);
-  border-bottom: 1px solid var(--border);
+  gap: 16px;
+  flex: 0 0 auto;
+  padding: 22px var(--gutter) 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-3);
 }
 .topbar-title {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  line-height: 1.25;
+  gap: 3px;
+}
+.topbar-title h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-strong);
 }
 .topbar-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-dim);
 }
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-left: auto;
 }
 .topbar-sep {
@@ -264,12 +403,13 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 26px;
-  padding: 0 10px 0 8px;
+  height: 30px;
+  padding: 0 12px 0 10px;
+  border: 1px solid var(--border);
   border-radius: var(--r-full);
-  background: var(--surface-2);
-  font-size: 11.5px;
-  font-weight: 570;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-dim);
 }
 .live-dot {
@@ -280,6 +420,7 @@
 }
 .live.on {
   background: var(--done-soft);
+  border-color: transparent;
   color: var(--done);
 }
 .live.on .live-dot {
@@ -289,8 +430,10 @@
 
 .content {
   flex: 1;
-  padding: 20px var(--gutter) 48px;
   min-width: 0;
+  min-height: 0;
+  padding: 16px var(--gutter) 18px;
+  overflow: hidden;
 }
 
 .menu-btn {
@@ -302,11 +445,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 auto;
   padding: 9px var(--gutter);
   background: var(--accent-soft);
   color: var(--accent-soft-ink);
   font-size: 12.5px;
-  font-weight: 570;
+  font-weight: 500;
   border-bottom: 1px solid var(--border);
 }
 .pilot-bar .btn {
@@ -322,38 +466,37 @@
 @media (max-width: 1020px) {
   :root {
     --gutter: 16px;
+    --shell-pad: 10px;
+  }
+
+  .shell {
+    gap: 0;
+    /* En tiroir, le rail est hors flux : on rend le defilement a la page. */
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .main {
+    overflow: visible;
+  }
+  .content {
+    overflow-y: auto;
   }
 
   .sidebar {
     position: fixed;
-    left: 0;
-    top: 0;
+    left: var(--shell-pad);
+    top: var(--shell-pad);
+    flex-basis: var(--sidebar-w);
     width: var(--sidebar-w);
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% - var(--shell-pad) * 2));
     transition: transform var(--slow);
     box-shadow: var(--sh-4);
   }
   .shell.drawer-open .sidebar {
     transform: translateX(0);
   }
-  .shell.collapsed .sidebar {
-    width: var(--sidebar-w);
-  }
-  .shell.collapsed .brand-text,
-  .shell.collapsed .nav-label,
-  .shell.collapsed .nav-section,
-  .shell.collapsed .shop-meta,
-  .shell.collapsed .account-meta,
-  .shell.collapsed .nav-item .badge {
-    display: revert;
-  }
-  .shell.collapsed .nav-item,
-  .shell.collapsed .shop-switch,
-  .shell.collapsed .account {
-    justify-content: flex-start;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
+
 
   .scrim {
     display: block;
@@ -373,8 +516,8 @@
   .menu-btn {
     display: inline-grid;
   }
-  .collapse-btn {
-    display: none;
+  .topbar {
+    padding-top: 14px;
   }
   .topbar-sub {
     display: none;
@@ -382,6 +525,16 @@
 }
 
 @media (max-width: 640px) {
+  :root {
+    --shell-pad: 0px;
+  }
+  .main {
+    border: 0;
+    border-radius: 0;
+  }
+  .topbar-title h1 {
+    font-size: 18px;
+  }
   .content {
     padding: 14px var(--gutter) 40px;
   }
@@ -399,5 +552,41 @@
   .modal {
     max-height: 92vh;
     border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+}
+
+/* Pastille de compte dans la barre haute — rappelle celle du pied du rail. */
+.topbar-account {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 6px 12px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+.topbar-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .topbar-account span {
+    display: none;
+  }
+  .topbar-account {
+    padding: 6px;
   }
 }

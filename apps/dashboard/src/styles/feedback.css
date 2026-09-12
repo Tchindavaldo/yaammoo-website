@@ -152,7 +152,7 @@
   border-bottom: 2px solid transparent;
   color: var(--text-dim);
   font-size: 13.5px;
-  font-weight: 570;
+  font-weight: 500;
   transition: color var(--fast);
 }
 .tab:hover {
@@ -161,7 +161,7 @@
 .tab.active {
   color: var(--accent-soft-ink);
   border-bottom-color: var(--accent);
-  font-weight: 620;
+  font-weight: 600;
 }
 
 /* ── Toasts ───────────────────────────────────────────────────────────── */
