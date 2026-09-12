@@ -12,31 +12,54 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { formatXAF } from "@yaammoo/shared";
 import { useMerchant } from "../features/merchant/MerchantContext.jsx";
-import { useToast } from "../components/Toast.jsx";
-import { Alert, Btn, Empty, Field, Modal, SkCards } from "../components/ui.jsx";
+import { Btn, Empty, SkCards } from "../components/ui.jsx";
 import { Icon } from "../components/icons.jsx";
+import MenuForm from "../features/menus/MenuForm.jsx";
 
-const isAvailable = (m) => !(m.disponibilite === "false" || m.disponibilite === false);
-const nameOf = (m) => m.titre || m.name || "Sans titre";
+// L'API (/menu/:fastFoodId) renvoie `name`, `status`, `prices[]`, `extra[]`,
+// `drink[]`, `images[]` et `coverImage`. Les champs a plat (titre, prix1..3,
+// disponibilite) existent encore dans le schema mais arrivent toujours nuls :
+// on lit donc la forme reelle d'abord, avec repli sur l'ancienne.
+const isAvailable = (m) => {
+  if (m.status) return m.status === "available";
+  return !(m.disponibilite === "false" || m.disponibilite === false);
+};
+const nameOf = (m) => m.name || m.titre || "Sans titre";
 
-// Les paliers de prix sont stockes a plat (prix1..prix3) : on les remet en
-// liste, comme `prices` dans le design.
-// Les trois emplacements de prix du modele, remplis ou non.
-const priceSlotsOf = (m) => [
-  { price: Number(m.prix1) || 0, description: m.optionPrix1 },
-  { price: Number(m.prix2) || 0, description: m.optionPrix2 },
-  { price: Number(m.prix3) || 0, description: m.optionPrix3 },
-];
+// Image principale puis galerie.
+const imagesOf = (m) => {
+  const all = [m.coverImage, ...(Array.isArray(m.images) ? m.images : []), m.image];
+  return [...new Set(all.filter(Boolean))];
+};
 
-// Seuls les paliers effectivement tarifes.
-const pricesOf = (m) => priceSlotsOf(m).filter((p) => p.price > 0);
+// Les paliers de prix : `prices[]` cote API, sinon les champs a plat.
+const pricesOf = (m) => {
+  if (Array.isArray(m.prices) && m.prices.length)
+    return m.prices
+      .map((p) => ({ price: Number(p.price) || 0, description: p.description }))
+      .filter((p) => p.price > 0);
+  return [
+    { price: Number(m.prix1) || 0, description: m.optionPrix1 },
+    { price: Number(m.prix2) || 0, description: m.optionPrix2 },
+    { price: Number(m.prix3) || 0, description: m.optionPrix3 },
+  ].filter((p) => p.price > 0);
+};
 
+// Trois emplacements affiches dans la carte, remplis ou non.
+const priceSlotsOf = (m) => {
+  const filled = pricesOf(m);
+  return [0, 1, 2].map((i) => filled[i] || { price: 0, description: null });
+};
+
+// `extra[]` / `drink[]` sont des objets { name, status } cote API.
 const listOf = (v) => {
   if (Array.isArray(v))
     return v.map((x) => (typeof x === "string" ? x : x?.name)).filter(Boolean);
   if (typeof v === "string" && v.trim()) return v.split(",").map((s) => s.trim());
   return [];
 };
+const extrasOf = (m) => listOf(m.extra || m.extras);
+const drinksOf = (m) => listOf(m.drink || m.drinks || m.boissons);
 
 // Seules les chips qui filtrent reellement sont affichees.
 const CHIPS = [
@@ -45,6 +68,42 @@ const CHIPS = [
 ];
 
 const SORTS = ["Plus recents", "Prix croissant", "Prix decroissant", "Stock"];
+
+const Star = ({ filled = true }) => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill={filled ? "#f5a524" : "#dce0e7"}>
+    <path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z" />
+  </svg>
+);
+
+/* Liste a puces bornee a 3 lignes. Au-dela, le troisieme element porte un
+   +N qui dit combien d'autres existent — la liste ne s'allonge jamais. */
+function BulletList({ items, tone }) {
+  const shown = items.slice(0, 3);
+  const rest = items.length - shown.length;
+  // Les lignes manquantes sont comblees par des traits : le panneau garde
+  // la meme hauteur qu'il y ait 0, 1 ou 3 elements.
+  const fillers = 3 - shown.length;
+
+  return (
+    <ul className="detail-bullets">
+      {shown.map((label, i) => {
+        const last = i === shown.length - 1;
+        return (
+          <li key={label}>
+            {last && rest > 0 && <span className="detail-more-count">+{rest}</span>}
+            <span className={`bullet ${tone}`} />
+            <span className="truncate">{label}</span>
+          </li>
+        );
+      })}
+      {Array.from({ length: fillers }).map((_, i) => (
+        <li className="detail-bullet-empty" key={`f-${i}`}>
+          <span className="detail-dash" />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const Chevron = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
@@ -55,7 +114,8 @@ const Chevron = () => (
 export default function Menus() {
   const { menus, boutique, loading, addMenu } = useMerchant();
   const [params, setParams] = useSearchParams();
-  const [open, setOpen] = useState(false);
+  // `editing` vaut null pour une creation, le menu a modifier sinon.
+  const [editing, setEditing] = useState(null);
   const [selId, setSelId] = useState(null);
   const [details, setDetails] = useState(true);
   const [sort, setSort] = useState(SORTS[0]);
@@ -71,6 +131,22 @@ export default function Menus() {
   };
 
   const shopName = boutique?.name || boutique?.nom || "Ma boutique";
+
+  // Panneau de creation. Sa largeur est calculee en CSS (voir .mpanel) :
+  // meme fraction que la colonne 3 de la grille.
+  const [creating, setCreating] = useState(false);
+  // Echap ferme le panneau.
+  useEffect(() => {
+    if (!creating) return;
+    const onKey = (e) => e.key === "Escape" && setCreating(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [creating]);
+
+  const saveMenu = async (payload) => {
+    await addMenu(payload);
+    setEditing(null);
+  };
 
   // `list` du design : disponibles ou indisponibles, puis tri.
   const list = useMemo(() => {
@@ -101,7 +177,7 @@ export default function Menus() {
     if (!el) return;
     const measure = () => {
       const fits = Math.floor((el.clientHeight + 12) / ROW_H);
-      setGhosts(Math.max(0, fits - list.length));
+      setGhosts(Math.max(0, fits + 1 - list.length));
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -119,12 +195,18 @@ export default function Menus() {
           title="Catalogue vide"
           hint="Ajoutez votre premier menu pour pouvoir encaisser au comptoir."
           action={
-            <Btn variant="primary" size="sm" icon="plus" onClick={() => setOpen(true)}>
+            <Btn
+              variant="primary"
+              size="sm"
+              icon="plus"
+              onClick={() => {
+                setEditing(null);
+              }}
+            >
               Ajouter un menu
             </Btn>
           }
         />
-        {open && <AddMenuModal onClose={() => setOpen(false)} onSave={addMenu} />}
       </div>
     );
   }
@@ -148,7 +230,11 @@ export default function Menus() {
                 </button>
               ))}
             </div>
-            <button type="button" className="menu-new" onClick={() => setOpen(true)}>
+            <button
+              type="button"
+              className="menu-new"
+              onClick={() => setCreating(true)}
+            >
               <Icon name="plus" size={14} />
               <span>Nouveau menu</span>
             </button>
@@ -188,6 +274,8 @@ export default function Menus() {
             {list.map((m) => {
               const prices = pricesOf(m);
               const stock = Number(m.stock) || 0;
+              const nExtras = extrasOf(m).length;
+              const nDrinks = drinksOf(m).length;
               return (
                 <button
                   type="button"
@@ -197,17 +285,39 @@ export default function Menus() {
                 >
                   <span
                     className="menu-row-thumb"
-                    style={m.image ? { backgroundImage: `url(${m.image})` } : undefined}
+                    style={
+                      imagesOf(m)[0]
+                        ? { backgroundImage: `url(${imagesOf(m)[0]})` }
+                        : undefined
+                    }
                   >
-                    {!m.image && <Icon name="image" size={18} />}
+                    {!imagesOf(m)[0] && <Icon name="image" size={18} />}
                   </span>
                   <span className="menu-row-body">
                     <span className="menu-row-top">
                       <span className="menu-row-ident">
-                        <span className="menu-row-shop truncate">{shopName}</span>
+                        <span className="menu-row-rating">
+                          <Star filled={(m.ratingCount || 0) > 0} />
+                          {(m.ratingCount || 0) > 0 ? (
+                            <>
+                              <span className="menu-row-rating-note">
+                                {Number(m.ratingAvg).toFixed(1)}
+                              </span>
+                              <span className="menu-row-rating-count">
+                                ({m.ratingCount} avis)
+                              </span>
+                            </>
+                          ) : (
+                            <span className="menu-row-rating-count">Pas encore note</span>
+                          )}
+                        </span>
                         <span className="menu-row-name truncate">{nameOf(m)}</span>
                         <span className="menu-row-meta truncate">
                           {prices.length} format{prices.length > 1 ? "s" : ""}
+                          {" \u00b7 "}
+                          {nExtras} extra{nExtras > 1 ? "s" : ""}
+                          {" \u00b7 "}
+                          {nDrinks} boisson{nDrinks > 1 ? "s" : ""}
                         </span>
                       </span>
                       <span
@@ -234,19 +344,26 @@ export default function Menus() {
 
             {Array.from({ length: ghosts }).map((_, i) => (
               <div className="menu-row ghost" key={`ghost-${i}`} aria-hidden="true">
-                <span className="menu-row-thumb" />
+                <span className="menu-row-thumb">
+                  <Icon name="image" size={18} />
+                </span>
                 <span className="menu-row-body">
                   <span className="menu-row-top">
                     <span className="menu-row-ident">
-                      <span className="ghost-dash sm" />
-                      <span className="ghost-dash lg" />
-                      <span className="ghost-dash sm" />
+                      <span className="menu-row-rating">
+                        <Star filled={false} />
+                        <span className="menu-row-rating-count">Non note</span>
+                      </span>
+                      <span className="menu-row-name truncate">Plat non defini</span>
+                      <span className="menu-row-meta truncate">
+                        0 format · 0 extra · 0 boisson
+                      </span>
                     </span>
                     <span className="menu-row-dot ghost-dot" />
                   </span>
                   <span className="menu-row-foot">
-                    <span className="ghost-dash sm" />
-                    <span className="ghost-dash md" />
+                    <span className="menu-row-stock">Stock —</span>
+                    <span className="menu-row-price">—</span>
                   </span>
                 </span>
               </div>
@@ -270,11 +387,40 @@ export default function Menus() {
 
         {/* ── Colonne droite : rail boutique ────────────────────────── */}
         <aside className="menus-rail">
-          <ShopConfigRail boutique={boutique} onAdd={() => setOpen(true)} />
+          <ShopConfigRail menu={editing} onSave={saveMenu} onCancel={() => setEditing(null)} />
         </aside>
       </div>
 
-      {open && <AddMenuModal onClose={() => setOpen(false)} onSave={addMenu} />}
+      {creating && (
+        <>
+          <div className="mpanel-scrim" onClick={() => setCreating(false)} />
+          <aside
+            className="mpanel"
+            role="dialog"
+            aria-label="Nouveau menu"
+          >
+            <div className="mpanel-head">
+              <span className="mpanel-title">Nouveau menu</span>
+              <button
+                type="button"
+                className="mpanel-close"
+                onClick={() => setCreating(false)}
+                aria-label="Fermer"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            </div>
+            <ShopConfigRail
+              menu={null}
+              onSave={async (payload) => {
+                await saveMenu(payload);
+                setCreating(false);
+              }}
+              onCancel={() => setCreating(false)}
+            />
+          </aside>
+        </>
+      )}
     </>
   );
 }
@@ -284,8 +430,15 @@ export default function Menus() {
 function MenuDetail({ menu, shopName, details, onToggleDetails }) {
   const prices = pricesOf(menu);
   const slots = priceSlotsOf(menu);
-  const extras = listOf(menu.extras);
-  const drinks = listOf(menu.boissons || menu.drinks);
+  const images = imagesOf(menu);
+  // Index de la photo affichee en grand. Remis a zero quand on change de plat.
+  const [shot, setShot] = useState(0);
+  useEffect(() => setShot(0), [menu.id]);
+  const heroIdx = Math.min(shot, Math.max(0, images.length - 1));
+  // L'API porte le descriptif dans le premier palier de prix.
+  const description = menu.description || prices[0]?.description || "";
+  const extras = extrasOf(menu);
+  const drinks = drinksOf(menu);
   const hasStock = menu.stock !== undefined && menu.stock !== null && menu.stock !== "";
   const stock = Number(menu.stock) || 0;
   // stockMax = 40, comme le design.
@@ -310,17 +463,35 @@ function MenuDetail({ menu, shopName, details, onToggleDetails }) {
       <div className="detail-gallery">
         <div
           className="detail-hero"
-          style={menu.image ? { backgroundImage: `url(${menu.image})` } : undefined}
+          style={
+            images[heroIdx] ? { backgroundImage: `url(${images[heroIdx]})` } : undefined
+          }
         >
-          {!menu.image && <Icon name="image" size={28} />}
-          <span className="detail-photo-count">{menu.image ? "1 / 1" : "0 photo"}</span>
+          {!images[heroIdx] && <Icon name="image" size={28} />}
+          <span className="detail-photo-count">
+            {images.length ? `${heroIdx + 1} / ${images.length}` : "0 photo"}
+          </span>
         </div>
         <div className="detail-thumbs">
-          {[0, 1, 2].map((i) => (
-            <div className="detail-thumb" key={i}>
-              <Icon name="image" size={16} />
-            </div>
-          ))}
+          {[0, 1, 2].map((i) => {
+            const src = images[i];
+            if (!src)
+              return (
+                <div className="detail-thumb" key={i}>
+                  <Icon name="image" size={16} />
+                </div>
+              );
+            return (
+              <button
+                type="button"
+                key={i}
+                className={i === heroIdx ? "detail-thumb active" : "detail-thumb"}
+                style={{ backgroundImage: `url(${src})` }}
+                onClick={() => setShot(i)}
+                aria-label={`Afficher la photo ${i + 1}`}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -377,10 +548,10 @@ function MenuDetail({ menu, shopName, details, onToggleDetails }) {
           {details && (
             <>
               <p className="detail-desc">
-                {menu.description || "Aucune description renseignee pour ce plat."}
+                {description || "Aucune description renseignee pour ce plat."}
               </p>
               <button type="button" className="detail-more">
-                {menu.description ? "Voir plus" : "Ajouter"}
+                {description ? "Voir plus" : "Ajouter"}
               </button>
             </>
           )}
@@ -388,38 +559,12 @@ function MenuDetail({ menu, shopName, details, onToggleDetails }) {
         <div className="detail-panel-rule" />
         <div className="detail-panel">
           <div className="detail-panel-label">EXTRAS</div>
-          <ul className="detail-bullets">
-            {extras.length
-              ? extras.map((e) => (
-                  <li key={e}>
-                    <span className="bullet accent" />
-                    <span className="truncate">{e}</span>
-                  </li>
-                ))
-              : [0, 1, 2].map((i) => (
-                  <li className="detail-bullet-empty" key={i}>
-                    <span className="detail-dash" />
-                  </li>
-                ))}
-          </ul>
+          <BulletList items={extras} tone="accent" />
         </div>
         <div className="detail-panel-rule" />
         <div className="detail-panel">
           <div className="detail-panel-label">BOISSONS</div>
-          <ul className="detail-bullets">
-            {drinks.length
-              ? drinks.map((d) => (
-                  <li key={d}>
-                    <span className="bullet info" />
-                    <span className="truncate">{d}</span>
-                  </li>
-                ))
-              : [0, 1, 2].map((i) => (
-                  <li className="detail-bullet-empty" key={i}>
-                    <span className="detail-dash" />
-                  </li>
-                ))}
-          </ul>
+          <BulletList items={drinks} tone="info" />
         </div>
       </div>
 
@@ -483,11 +628,11 @@ function MenuDetail({ menu, shopName, details, onToggleDetails }) {
 
 /* ── Rail de configuration boutique ─────────────────────────────────── */
 
-function ShopConfigRail({ boutique, onAdd }) {
-  const [tab, setTab] = useState("config");
+function ShopConfigRail({ menu, onSave, onCancel }) {
+  const [step, setStep] = useState("main");
   const tabs = [
-    { id: "config", label: "Boutique" },
-    { id: "livraison", label: "Livraison" },
+    { id: "main", label: "Le plat" },
+    { id: "items", label: "Extras & boissons" },
   ];
 
   return (
@@ -497,175 +642,15 @@ function ShopConfigRail({ boutique, onAdd }) {
           <button
             key={t.id}
             type="button"
-            className={tab === t.id ? "rail-tab active" : "rail-tab"}
-            onClick={() => setTab(t.id)}
+            className={step === t.id ? "rail-tab active" : "rail-tab"}
+            onClick={() => setStep(t.id)}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="rail-panel">
-        {tab === "config" ? (
-          <>
-            <div className="rail-label">IDENTITE &amp; HORAIRES</div>
-            <div className="rail-field">
-              <span className="rail-field-label">Nom de la boutique</span>
-              <span className="rail-field-value truncate">
-                {boutique?.name || boutique?.nom || "Ma boutique"}
-              </span>
-            </div>
-            <div className="rail-grid-2">
-              <div className="rail-field">
-                <span className="rail-field-label">Ouverture</span>
-                <span className="rail-field-value">{boutique?.heureOuverture || "—"}</span>
-              </div>
-              <div className="rail-field">
-                <span className="rail-field-label">Fermeture</span>
-                <span className="rail-field-value">{boutique?.heureFermeture || "—"}</span>
-              </div>
-            </div>
-
-            <div className="rail-label rail-label-sep">CONTACTS &amp; PAIEMENT</div>
-            <div className="rail-field">
-              <span className="rail-field-label">Telephone</span>
-              <span className="rail-field-value">{boutique?.telephone || "—"}</span>
-            </div>
-            <div className="rail-field">
-              <span className="rail-field-label">Localisation</span>
-              <span className="rail-field-value truncate">
-                {boutique?.localisation || boutique?.ville || "—"}
-              </span>
-            </div>
-
-            <Btn variant="primary" icon="plus" onClick={onAdd}>
-              Ajouter un menu
-            </Btn>
-          </>
-        ) : (
-          <>
-            <div className="rail-label">LOCALISATIONS</div>
-            <div className="rail-field rail-field-row">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ec4913" strokeWidth="1.8">
-                <path d="M12 21s7-6.1 7-11a7 7 0 10-14 0c0 4.9 7 11 7 11z" />
-                <circle cx="12" cy="10" r="2.4" />
-              </svg>
-              <span className="stacked">
-                <span className="rail-field-value">
-                  {boutique?.localisation || boutique?.ville || "Non renseignee"}
-                </span>
-                <span className="rail-field-label">Zone principale</span>
-              </span>
-            </div>
-            <div className="rail-note">
-              La configuration des creneaux de livraison se fait depuis
-              l'application marchand.
-            </div>
-          </>
-        )}
-      </div>
+      <MenuForm menu={menu} onSave={onSave} onCancel={onCancel} step={step} />
     </>
-  );
-}
-
-/* ── Modale d'ajout ──────────────────────────────────────────────────── */
-
-function AddMenuModal({ onClose, onSave }) {
-  const toast = useToast();
-  const [form, setForm] = useState({
-    titre: "",
-    prix1: "",
-    optionPrix1: "",
-    image: "",
-    stock: "",
-  });
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(null);
-
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-
-  const save = async () => {
-    if (!form.titre || !form.prix1) {
-      setError("Titre et prix sont obligatoires.");
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    try {
-      await onSave({
-        titre: form.titre,
-        prix1: Number(form.prix1),
-        optionPrix1: form.optionPrix1 || "Normal",
-        image: form.image,
-        stock: form.stock ? Number(form.stock) : undefined,
-        disponibilite: "true",
-      });
-      toast.ok("Menu ajoute", form.titre);
-      onClose();
-    } catch (err) {
-      setError(err.message || "Enregistrement impossible.");
-      setBusy(false);
-    }
-  };
-
-  return (
-    <Modal
-      title="Nouveau menu"
-      subtitle="Il sera disponible immediatement a la caisse et dans l'app client."
-      onClose={onClose}
-      footer={
-        <>
-          <Btn onClick={onClose}>Annuler</Btn>
-          <Btn variant="primary" onClick={save} disabled={busy}>
-            {busy ? "Enregistrement..." : "Enregistrer"}
-          </Btn>
-        </>
-      }
-    >
-      <div className="modal-body stack">
-        <Field label="Titre du menu">
-          <input className="input" value={form.titre} onChange={set("titre")} autoFocus />
-        </Field>
-        <Field label="Prix (XAF)">
-          <input
-            className="input num"
-            type="number"
-            min="0"
-            value={form.prix1}
-            onChange={set("prix1")}
-          />
-        </Field>
-        <Field
-          label="Libelle de l'option"
-          hint="Ce que le client choisit : Normal, Grand, Familial..."
-        >
-          <input
-            className="input"
-            value={form.optionPrix1}
-            onChange={set("optionPrix1")}
-            placeholder="Normal"
-          />
-        </Field>
-        <Field label="Stock" hint="Laisser vide si le stock n'est pas suivi.">
-          <input
-            className="input num"
-            type="number"
-            min="0"
-            value={form.stock}
-            onChange={set("stock")}
-          />
-        </Field>
-        <Field label="URL de l'image">
-          <input
-            className="input"
-            value={form.image}
-            onChange={set("image")}
-            placeholder="https://..."
-          />
-        </Field>
-
-        {error && <Alert>{error}</Alert>}
-      </div>
-    </Modal>
   );
 }
