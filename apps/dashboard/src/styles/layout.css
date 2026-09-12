@@ -438,11 +438,31 @@
 
 /* Vue d'ensemble : l'ecran porte son propre header et son propre defilement,
    exactement comme le <main> du design de reference. On neutralise donc le
-   rembourrage de .content pour ne rien ajouter au design. */
+   rembourrage de .content pour ne rien ajouter au design.
+
+   `height:100%` doit se propager sans rupture : dans le design l'ecran est
+   fils direct du <main>, et c'est cette hauteur connue qui permet aux deux
+   rangees de se partager la place (45% puis le reste). Sans elle, les
+   rangees retombent sur la hauteur de leur contenu. */
 .content.content-bare {
   padding: 0;
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+.content.content-bare > * {
+  min-height: 0;
+}
+
+/* Le design masque toutes les barres de defilement (regle `*::-webkit-scrollbar`
+   de sa feuille de style) : le contenu defile, mais aucune barre n'apparait —
+   notamment dans « Activite du jour ». */
+.content.content-bare *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.content.content-bare * {
+  scrollbar-width: none;
 }
 
 .menu-btn {
