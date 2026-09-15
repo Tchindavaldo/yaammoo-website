@@ -231,7 +231,7 @@ export default function Boutique() {
         height: "100%",
       }}
     >
-      {/* Zone defilante : seul le contenu bouge sous le header */}
+      {/* Zone fixe : hauteur 100% sous le header, pas de scroll global */}
       <div
         style={{
           padding: "0 26px 4px",
@@ -240,8 +240,8 @@ export default function Boutique() {
           gap: 14,
           flex: 1,
           minHeight: 0,
-          overflowX: "hidden",
-          overflowY: "auto",
+          height: "100%",
+          overflow: "hidden",
         }}
       >
         <div
@@ -252,6 +252,9 @@ export default function Boutique() {
               : "minmax(230px,1fr) minmax(0,1.9fr)",
             gap: 14,
             alignItems: "stretch",
+            flex: 1,
+            minHeight: 0,
+            height: "100%",
           }}
         >
           {/* ──── Colonne gauche admin : liste des boutiques ──── */}
@@ -261,13 +264,14 @@ export default function Boutique() {
               onSelect={setOverrideFastFoodId}
             />
           )}
-          {/* ------------------------------ colonne gauche : fiche boutique */}
+          {/* ------------------------------ colonne centre : fiche boutique */}
           <div
             style={{
               background: "#ffffff",
               border: "1px solid #eceef2",
               borderRadius: 20,
               overflow: "hidden",
+              overflowY: "auto",
               display: "flex",
               flexDirection: "column",
               minWidth: 0,
@@ -548,7 +552,16 @@ export default function Boutique() {
           </div>
 
           {/* ------------------------------- colonne droite : blocs empiles */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              minWidth: 0,
+              height: "100%",
+              overflowY: "auto",
+            }}
+          >
             {/* Encaissements */}
             <div style={CARD}>
               <div
@@ -834,7 +847,7 @@ function AdminShopRail({ activeFastFoodId, onSelect }) {
   );
 
   return (
-    <section className="menus-list-pane">
+    <section className="menus-list-pane" style={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
       {/* En-tete : chip + bouton quitter si override actif */}
       <div className="menus-chips">
         <div className="menus-chips-group">
