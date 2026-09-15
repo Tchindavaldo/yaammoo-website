@@ -45,7 +45,7 @@ Commandes en retard · Plats à mettre en avant.
 **Colonne 3 — Fiche boutique** : photo + badge catégorie ·
 nom · 4 stats (Clients, Commandes, Plats, À venir) · barre d'objectif · barres
 hebdomadaires L→D (sur place / livrées) · 4 états (Nouvelles, Ouvertes, En cours,
-En retard) · équipe en service.
+En retard) · équipe en service · 2 boutons d'action bas (Modifier / Supprimer).
 
 ## Données (R6)
 
