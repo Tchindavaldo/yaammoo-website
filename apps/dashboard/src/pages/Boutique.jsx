@@ -241,12 +241,14 @@ export default function Boutique() {
           )}
           {/* ------------------------------ colonne centre : fiche boutique */}
           <div
+            className="shop-col-detail"
             style={{
               background: "#ffffff",
               border: "1px solid #eceef2",
               borderRadius: 20,
               overflow: "hidden",
               overflowY: "auto",
+              scrollbarWidth: "none",
               display: "flex",
               flexDirection: "column",
               minWidth: 0,
@@ -537,6 +539,7 @@ export default function Boutique() {
 
           {/* ------------------------------- colonne droite : blocs empiles */}
           <div
+            className="shop-col-cards"
             style={{
               display: "flex",
               flexDirection: "column",
@@ -544,6 +547,7 @@ export default function Boutique() {
               minWidth: 0,
               height: "100%",
               overflowY: "auto",
+              scrollbarWidth: "none",
             }}
           >
             {/* Encaissements */}

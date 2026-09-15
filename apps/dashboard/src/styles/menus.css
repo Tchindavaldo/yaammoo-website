@@ -1172,10 +1172,13 @@ button.detail-thumb {
 /* Aucune barre de defilement visible dans les trois colonnes ni le
    formulaire : le contenu defile, la barre ne s'affiche jamais. */
 .menus-list,
+.menus-list,
 .menus-detail,
 .menus-rail,
 .rail-panel,
-.mform-body {
+.mform-body,
+.shop-col-detail,
+.shop-col-cards {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -1183,7 +1186,9 @@ button.detail-thumb {
 .menus-detail::-webkit-scrollbar,
 .menus-rail::-webkit-scrollbar,
 .rail-panel::-webkit-scrollbar,
-.mform-body::-webkit-scrollbar {
+.mform-body::-webkit-scrollbar,
+.shop-col-detail::-webkit-scrollbar,
+.shop-col-cards::-webkit-scrollbar {
   width: 0;
   height: 0;
   display: none;
