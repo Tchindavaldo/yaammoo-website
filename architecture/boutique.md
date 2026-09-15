@@ -30,22 +30,22 @@ racine        flex column, minHeight:0, height:100%   (pas de scroll)
 
 ## Structure
 
-Grille **2 colonnes** pour les marchands (`minmax(230px,1fr) minmax(0,1.9fr)`), **3 colonnes** pour les admins :
-`minmax(220px,260px) minmax(230px,1fr) minmax(0,1.9fr)`.
+Grille **2 colonnes** pour les marchands (`minmax(0,1.9fr) minmax(230px,1fr)`), **3 colonnes** pour les admins :
+`minmax(220px,260px) minmax(0,1.9fr) minmax(230px,1fr)`.
 
-**Colonne gauche (admin uniquement) — `AdminShopRail`** : liste scrollable de toutes
+**Colonne 1 (admin uniquement) — `AdminShopRail`** : liste scrollable de toutes
 les boutiques via `adminService.getFastFoods()`. Chips de filtre, barre de recherche (filtre local
 par nom/catégorie), compteur total. Clic sur une boutique => `setOverrideFastFoodId(id)` (R14).
 Bouton « Quitter » quand un override est actif. Design identique à `menus-list-pane`
 de Menus (reprise exacte de la structure et des classes CSS `menu-row`).
 
-**Colonne intermédiaire (fiche boutique)** : photo + badge catégorie ·
+**Colonne 2 — 4 cartes empilées** : Encaissements · Nouvelles demandes ·
+Commandes en retard · Plats à mettre en avant.
+
+**Colonne 3 — Fiche boutique** : photo + badge catégorie ·
 nom · 4 stats (Clients, Commandes, Plats, À venir) · barre d'objectif · barres
 hebdomadaires L→D (sur place / livrées) · 4 états (Nouvelles, Ouvertes, En cours,
 En retard) · équipe en service.
-
-**Colonne droite — 4 cartes empilées** : Encaissements · Nouvelles demandes ·
-Commandes en retard · Plats à mettre en avant.
 
 ## Données (R6)
 
