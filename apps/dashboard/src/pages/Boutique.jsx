@@ -278,7 +278,15 @@ export default function Boutique() {
               height: "100%",
             }}
           >
-            <div style={{ position: "relative", flex: "1 1 180px", minHeight: 170 }}>
+            <div
+              style={{
+                position: "relative",
+                flex: "1 1 140px",
+                minHeight: 120,
+                maxHeight: 260,
+                flexShrink: 1,
+              }}
+            >
               {shopPhoto ? (
                 <img
                   src={shopPhoto}
@@ -317,12 +325,13 @@ export default function Boutique() {
 
             <div
               style={{
-                padding: "18px 20px",
+                padding: "16px 20px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 gap: 12,
                 borderBottom: "1px solid #f1f3f6",
+                flex: "0 0 auto",
               }}
             >
               <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: "-0.3px", color: "#14161a" }}>
@@ -333,7 +342,7 @@ export default function Boutique() {
               </svg>
             </div>
 
-            <div style={{ padding: "18px 20px", borderBottom: "1px solid #f1f3f6" }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f3f6", flex: "0 0 auto" }}>
               <div
                 style={{
                   display: "grid",
@@ -376,7 +385,7 @@ export default function Boutique() {
               </div>
             </div>
 
-            <div style={{ padding: "18px 20px", borderBottom: "1px solid #f1f3f6" }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f3f6", flex: "0 0 auto" }}>
               <div
                 style={{
                   display: "flex",
@@ -489,7 +498,7 @@ export default function Boutique() {
               </div>
             </div>
 
-            <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: "0 0 auto" }}>
               <div
                 style={{
                   display: "flex",
