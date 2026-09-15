@@ -6,6 +6,7 @@ import DashboardLayout from "./components/DashboardLayout.jsx";
 import Login from "./pages/Login.jsx";
 import Menus from "./pages/Menus.jsx";
 import Overview from "./pages/Overview.jsx";
+import Boutique from "./pages/Boutique.jsx";
 import { Btn, Empty } from "./components/ui.jsx";
 
 /** Garde d'acces : seuls marchands et admins entrent dans le dashboard. */
@@ -44,8 +45,6 @@ function Gate() {
     );
   }
 
-  // Le dashboard est reduit au seul ecran Menus : toute autre adresse y
-  // revient plutot que d'afficher une page vide.
   return (
     <MerchantProvider>
       <Routes>
@@ -53,6 +52,7 @@ function Gate() {
           <Route index element={<Menus />} />
           <Route path="menus" element={<Menus />} />
           <Route path="overview" element={<Overview />} />
+          <Route path="boutique" element={<Boutique />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

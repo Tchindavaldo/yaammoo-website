@@ -791,7 +791,6 @@ export default function Boutique() {
               </div>
             </div>
           </div>
-          </div>
         </div>
       </div>
     </div>

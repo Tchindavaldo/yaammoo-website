@@ -38,6 +38,7 @@ const NAV_GROUPS = [
         id: "shops",
         icon: "shops",
         label: "Boutiques",
+        to: "/boutique",
       },
       {
         id: "menus",
@@ -82,11 +83,15 @@ export default function DashboardLayout() {
   // La Vue d'ensemble reproduit le <main> du design : elle porte son propre
   // header et son propre defilement, donc la barre haute partagee s'efface.
   const isOverview = location.pathname === "/overview";
+  const isBoutique = location.pathname === "/boutique";
+  const isBare = isOverview || isBoutique;
 
   // L'item actif suit l'URL pour survivre a un rechargement.
   useEffect(() => {
-    setPage(isOverview ? "overview" : "menus");
-  }, [isOverview]);
+    if (location.pathname === "/overview") setPage("overview");
+    else if (location.pathname === "/boutique") setPage("shops");
+    else setPage("menus");
+  }, [location.pathname]);
 
   const counts = { orders: orders.length, menus: menus?.length || 0 };
 
@@ -107,8 +112,8 @@ export default function DashboardLayout() {
   );
 
   // `shell-fixed` garde la coque du design (hauteur fixe, aucun defilement de
-   // page) a toutes les tailles d'ecran sur la Vue d'ensemble.
-  const shellClass = ["shell", drawer ? "drawer-open" : "", isOverview ? "shell-fixed" : ""]
+  // page) a toutes les tailles d'ecran sur la Vue d'ensemble et Boutique.
+  const shellClass = ["shell", drawer ? "drawer-open" : "", isBare ? "shell-fixed" : ""]
     .filter(Boolean)
     .join(" ");
 
@@ -197,9 +202,13 @@ export default function DashboardLayout() {
           />
 
           <div className="topbar-title">
-            <h1 className="truncate">Gestion des menus</h1>
+            <h1 className="truncate">
+              {isBoutique ? "Boutique" : "Gestion des menus"}
+            </h1>
             <span className="topbar-sub truncate">
-              {today} &nbsp;&middot;&nbsp; Catalogue des plats
+              {isBoutique
+                ? `${today} \u00a0\u00b7\u00a0 Fiche et gestion de votre etablissement`
+                : `${today} \u00a0\u00b7\u00a0 Catalogue des plats`}
             </span>
           </div>
 
@@ -231,7 +240,7 @@ export default function DashboardLayout() {
           </div>
         )}
 
-        <div className={isOverview ? "content content-bare" : "content"}>
+        <div className={isBare ? "content content-bare" : "content"}>
           <Outlet />
         </div>
       </div>
