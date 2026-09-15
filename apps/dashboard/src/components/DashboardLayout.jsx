@@ -84,7 +84,7 @@ export default function DashboardLayout() {
   // header et son propre defilement, donc la barre haute partagee s'efface.
   const isOverview = location.pathname === "/overview";
   const isBoutique = location.pathname === "/boutique";
-  const isBare = isOverview || isBoutique;
+  const isBare = isOverview;
 
   // L'item actif suit l'URL pour survivre a un rechargement.
   useEffect(() => {

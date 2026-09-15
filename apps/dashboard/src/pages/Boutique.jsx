@@ -221,42 +221,17 @@ export default function Boutique() {
   return (
     <div
       style={{
-        padding: "0 0 20px",
-        background: "#ffffff",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
+        display: "grid",
+        gridTemplateColumns: isAdmin
+          ? "minmax(220px,260px) minmax(230px,1fr) minmax(0,1.9fr)"
+          : "minmax(230px,1fr) minmax(0,1.9fr)",
+        gap: 14,
+        alignItems: "stretch",
         flex: 1,
         minHeight: 0,
         height: "100%",
       }}
     >
-      {/* Zone fixe : hauteur 100% sous le header, pas de scroll global */}
-      <div
-        style={{
-          padding: "0 26px 4px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-          flex: 1,
-          minHeight: 0,
-          height: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: isAdmin
-              ? "minmax(220px,260px) minmax(230px,1fr) minmax(0,1.9fr)"
-              : "minmax(230px,1fr) minmax(0,1.9fr)",
-            gap: 14,
-            alignItems: "stretch",
-            flex: 1,
-            minHeight: 0,
-            height: "100%",
-          }}
-        >
           {/* ──── Colonne gauche admin : liste des boutiques ──── */}
           {isAdmin && (
             <AdminShopRail
@@ -814,8 +789,6 @@ export default function Boutique() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
   );
 }
 
