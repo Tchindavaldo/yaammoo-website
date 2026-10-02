@@ -11,6 +11,7 @@
 import { useRef, useState } from "react";
 import { Config } from "@yaammoo/shared";
 import { Icon } from "../../components/icons.jsx";
+import ItemSection, { namedItems } from "./MenuFormItems.jsx";
 
 /**
  * Envoie un fichier a POST /image/upload et renvoie l'URL publique.
@@ -78,9 +79,6 @@ function uploadImage(file, onProgress) {
 
 const STEPS = ["nameImage", "details"];
 const emptyDraft = () => ({ name: "", prix: "" });
-
-/** Items valides : ceux qui portent un nom. */
-const namedItems = (items) => items.filter((x) => x.name.trim());
 
 export default function MenuForm({ menu, onSave, onCancel, step }) {
   const editing = Boolean(menu);
@@ -173,6 +171,10 @@ export default function MenuForm({ menu, onSave, onCancel, step }) {
   const setPrice = (i, key, v) =>
     setPrices((p) => p.map((row, j) => (j === i ? { ...row, [key]: v } : row)));
 
+  // Saisie directe d'un lien d'image : met a jour le slot et donc l'apercu.
+  const setImageUrl = (i, v) =>
+    setImages((im) => im.map((x, j) => (j === i ? v.trimStart() : x)));
+
   const addItem = (list, setList, draft, setDraft) => {
     if (!draft.name.trim()) return;
     setList([
@@ -209,7 +211,7 @@ export default function MenuForm({ menu, onSave, onCancel, step }) {
     if (!parsedDrinks.length)
       parsedDrinks.push({ name: "Aucune", status: false, prix: 0, quantite: 0 });
 
-    const finalImages = images.filter(Boolean);
+    const finalImages = images.map((s) => String(s || "").trim()).filter(Boolean);
 
     setBusy(true);
     setError(null);
@@ -292,7 +294,9 @@ export default function MenuForm({ menu, onSave, onCancel, step }) {
                     }
                     key={i}
                     style={
-                      images[i] ? { backgroundImage: `url(${images[i]})` } : undefined
+                      images[i]?.trim()
+                        ? { backgroundImage: `url(${images[i].trim()})` }
+                        : undefined
                     }
                     onClick={() => pickFile(i)}
                     disabled={uploadingIdx !== null}
@@ -307,9 +311,36 @@ export default function MenuForm({ menu, onSave, onCancel, step }) {
                         <span className="mform-photo-pct">{progress[i]}%</span>
                       </span>
                     ) : (
-                      !images[i] && <Icon name="image" size={16} />
+                      !images[i]?.trim() && <Icon name="image" size={16} />
                     )}
                   </button>
+                ))}
+              </div>
+              <div className="mform-urls">
+                {[0, 1, 2].map((i) => (
+                  <div className="mform-url-row" key={i}>
+                    <input
+                      className="mform-input sm"
+                      type="url"
+                      inputMode="url"
+                      value={images[i]}
+                      onChange={(e) => setImageUrl(i, e.target.value)}
+                      placeholder={`Lien photo ${i + 1} (https://…)`}
+                      disabled={uploadingIdx !== null}
+                      aria-label={`Lien de la photo ${i + 1}`}
+                    />
+                    {images[i] && (
+                      <button
+                        type="button"
+                        className="mform-url-clear"
+                        onClick={() => setImageUrl(i, "")}
+                        aria-label={`Retirer la photo ${i + 1}`}
+                        disabled={uploadingIdx !== null}
+                      >
+                        <Icon name="close" size={12} />
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             </section>
@@ -430,73 +461,5 @@ export default function MenuForm({ menu, onSave, onCancel, step }) {
         </button>
       </div>
     </div>
-  );
-}
-
-/** Section Extras ou Boissons — rendu en grille de cellules, calque des
-    cartes de creneaux du design « Dashboard Boutique md screen ». Les cases
-    vides completent la grille pour qu'elle garde sa forme. */
-function ItemSection({ label, tone, items, setItems, draft, setDraft, onAdd, placeholder }) {
-  const valid = namedItems(items);
-  const fillers = Math.max(0, 6 - valid.length);
-
-  return (
-    <section className="mform-card zone">
-      <div className="zone-head">
-        <div>
-          <div className="zone-title">{label === "EXTRAS" ? "Extras" : "Boissons"}</div>
-          <div className="zone-sub">
-            {valid.length ? `${valid.length} enregistre${valid.length > 1 ? "s" : ""}` : "Aucun pour l'instant"}
-          </div>
-        </div>
-      </div>
-
-      <div className="zone-grid">
-        {valid.map((it, i) => (
-          <button
-            type="button"
-            className={`zone-card ${tone}`}
-            key={`${it.name}-${i}`}
-            onClick={() => setItems(items.filter((_, j) => j !== i))}
-            title={`Retirer ${it.name}`}
-          >
-            <span className="zone-card-top">
-              <span className={`zone-dot ${tone}`} />
-              <span className="zone-tag">{it.prix ? `${it.prix} F` : "0 F"}</span>
-            </span>
-            <span className="zone-card-name truncate">{it.name}</span>
-          </button>
-        ))}
-        {Array.from({ length: fillers }).map((_, i) => (
-          <div className="zone-card empty" key={`z-${i}`}>
-            <span className="zone-card-top">
-              <span className="zone-dot" />
-              <span className="zone-tag">— F</span>
-            </span>
-            <span className="zone-card-name">Non defini</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mform-row">
-        <input
-          className="mform-input"
-          value={draft.name}
-          onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          placeholder={placeholder}
-        />
-        <input
-          className="mform-input num"
-          type="number"
-          min="0"
-          value={draft.prix}
-          onChange={(e) => setDraft({ ...draft, prix: e.target.value })}
-          placeholder="Prix"
-        />
-        <button type="button" className="mform-add" onClick={onAdd} aria-label="Ajouter">
-          <Icon name="check" size={14} />
-        </button>
-      </div>
-    </section>
   );
 }

@@ -61,4 +61,24 @@ export const merchantService = {
     const res = await http.get(`/fastfood/${fastFoodId}`);
     return res.data.data;
   },
+
+  /**
+   * Televerse une image et renvoie son URL publique (Supabase storage).
+   *
+   * Contrat backend (R18) : POST /image/upload, multipart/form-data, champ
+   * `image`, reponse { data: "<url>" }. C'est cette URL qu'on stocke ensuite
+   * dans `fastfood.image`.
+   */
+  async uploadImage(file) {
+    const form = new FormData();
+    form.append("image", file);
+    const res = await http.post("/image/upload", form);
+    return res.data.data;
+  },
+
+  /** Modification d'une boutique — POST /fastfood/:fastFoodId (contrat backend real). */
+  async updateFastFood(fastFoodId, payload) {
+    const res = await http.post(`/fastfood/${fastFoodId}`, payload);
+    return res.data.data;
+  },
 };

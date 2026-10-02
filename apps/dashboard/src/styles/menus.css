@@ -996,6 +996,37 @@ button.detail-thumb {
   background: #f9f9f9 center / cover no-repeat;
   color: #c7c7cc;
 }
+.mform-urls {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.mform-url-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.mform-url-row .mform-input {
+  padding-right: 30px;
+  text-overflow: ellipsis;
+}
+.mform-url-clear {
+  position: absolute;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #8e8e93;
+  cursor: pointer;
+}
+.mform-url-clear:hover {
+  background: #f0f0f2;
+  color: #1c1c1e;
+}
 
 /* Chips des extras / boissons valides. */
 .mform-chips {

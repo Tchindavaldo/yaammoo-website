@@ -172,6 +172,19 @@ export function MerchantProvider({ children }) {
     [fetchData],
   );
 
+  // Enregistrement de la boutique (identité, horaires, créneaux de livraison).
+  const updateBoutique = useCallback(
+    async (payload) => {
+      if (!fastFoodId) return;
+      const updated = await merchantService.updateFastFood(fastFoodId, payload);
+      // Le backend purge les créneaux inexploitables : on repart de sa réponse
+      // quand il la renvoie, sinon on relit pour rester aligné avec la base.
+      if (updated && typeof updated === "object") setBoutique(updated);
+      else await fetchData(false);
+    },
+    [fastFoodId, fetchData],
+  );
+
   const stats = useMemo(
     () => ({
       totalOrders: orders.length,
@@ -202,6 +215,7 @@ export function MerchantProvider({ children }) {
     delegateOrder,
     addMenu,
     updateMenu,
+    updateBoutique,
     stats,
   };
 
