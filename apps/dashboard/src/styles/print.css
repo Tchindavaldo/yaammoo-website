@@ -1,0 +1,61 @@
+/* Impression du bon de caisse : on ne garde que le bloc facture. */
+
+@media print {
+  :root {
+    --surface: #fff;
+    --surface-inset: #fff;
+    --bg: #fff;
+    --text: #000;
+    --text-soft: #333;
+    --text-dim: #555;
+    --border: #ccc;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .sidebar,
+  .topbar,
+  .scrim,
+  .pilot-bar,
+  .toast-stack,
+  .modal-head,
+  .modal-foot,
+  .no-print {
+    display: none !important;
+  }
+
+  .content {
+    padding: 0;
+  }
+
+  .modal-backdrop {
+    position: static;
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+    animation: none;
+  }
+
+  .modal {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .modal-body {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .card {
+    box-shadow: none;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}

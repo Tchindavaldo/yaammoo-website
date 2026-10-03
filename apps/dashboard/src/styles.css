@@ -1,0 +1,21 @@
+/* Point d'entree des styles du dashboard.
+   Un fichier = une responsabilite (R4). Ne rien ajouter ici : editer le
+   fichier concerne, ou en creer un nouveau et l'importer a la bonne place.
+
+   L'ordre compte : les tokens d'abord, la base ensuite, puis les primitives,
+   puis la coque, puis les ecrans, l'impression en dernier. */
+
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+
+@import "./styles/controls.css";
+@import "./styles/surfaces.css";
+@import "./styles/feedback.css";
+
+@import "./styles/layout.css";
+
+@import "./styles/menus.css";
+@import "./styles/screens.css";
+@import "./styles/analytics.css";
+
+@import "./styles/print.css";

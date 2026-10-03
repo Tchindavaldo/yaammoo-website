@@ -1,0 +1,303 @@
+/* Ecrans restants : barres d'outils, catalogue, connexion, graphes, facture. */
+
+/* ── Barre d'outils ───────────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Catalogue de menus ───────────────────────────────────────────────── */
+
+/* Le marchand reconnait ses plats a l'image et au prix, pas a une ligne. */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+  gap: 14px;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border), var(--sh-1);
+  overflow: hidden;
+  transition:
+    box-shadow var(--fast),
+    transform var(--fast);
+}
+.menu-card:hover {
+  box-shadow: inset 0 0 0 1px var(--border-strong), var(--sh-3);
+  transform: translateY(-2px);
+}
+.menu-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-2) center / cover no-repeat;
+  color: var(--text-faint);
+}
+.menu-thumb .pill {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  box-shadow: var(--sh-2);
+}
+.menu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 13px 13px;
+}
+.menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.menu-opts {
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.menu-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.menu-price {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Connexion ────────────────────────────────────────────────────────── */
+
+.auth {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  min-height: 100vh;
+}
+.auth-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 44px;
+  background: var(--n-900);
+  color: #fff;
+}
+.auth-pitch h2 {
+  max-width: 15ch;
+  margin-bottom: 14px;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1.12;
+  letter-spacing: -0.032em;
+}
+.auth-pitch p {
+  max-width: 42ch;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.auth-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 30px;
+}
+.auth-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.auth-point svg {
+  margin-top: 1px;
+  color: var(--brand-400);
+}
+.auth-legal {
+  color: rgba(255, 255, 255, 0.45);
+}
+.auth-main {
+  display: grid;
+  place-items: center;
+  padding: 32px 24px;
+  background: var(--bg);
+}
+.auth-card {
+  width: 100%;
+  max-width: 368px;
+}
+.auth-title {
+  margin-bottom: 22px;
+}
+.auth-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.auth-sep::before,
+.auth-sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.auth-foot {
+  margin-top: 18px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+  .auth-side {
+    display: none;
+  }
+}
+
+.center-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+/* ── Graphes ──────────────────────────────────────────────────────────── */
+
+/* Serie unique, un seul axe, grille recessive : le titre nomme la serie,
+   donc pas de legende. Le tableau qui suit reste la vue exhaustive. */
+.chart {
+  position: relative;
+  width: 100%;
+}
+.chart svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.chart-grid line {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.chart-axis {
+  fill: var(--text-faint);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.chart-bar {
+  fill: var(--series-1);
+  transition: opacity var(--fast);
+}
+.chart-bar.dim {
+  opacity: 0.3;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--series-1);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, 0);
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border), var(--sh-3);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.chart-tip-label {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.chart-tip-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Facture ──────────────────────────────────────────────────────────── */
+
+.invoice {
+  font-size: 13px;
+}
+.invoice-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid var(--text);
+}
+.invoice-shop {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+.invoice-meta {
+  text-align: right;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+.invoice-client {
+  margin-bottom: 14px;
+}
+.invoice-total {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.invoice-total-box {
+  min-width: 250px;
+}
+.invoice-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 5px 0;
+  font-variant-numeric: tabular-nums;
+}
+.invoice-total-row.grand {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 2px solid var(--text);
+  font-size: 16px;
+  font-weight: 700;
+}
+.invoice-foot {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}

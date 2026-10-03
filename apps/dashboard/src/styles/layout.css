@@ -1,0 +1,652 @@
+/* Coque : rail lateral, panneau principal, barre haute, zone de contenu.
+
+   Refonte alignee sur « Dashboard Menu md screen v3 » : la page est un fond
+   gris, le rail et le panneau principal sont deux cartes arrondies qui
+   flottent dessus avec une gouttiere constante. Le rail groupe la navigation
+   par section, chaque entree est une pilule, et l'entree active se reconnait
+   a la pastille sombre derriere son icone. */
+
+.shell {
+  display: flex;
+  align-items: stretch;
+  gap: var(--shell-gap);
+  /* La coque tient exactement dans la fenetre : c'est .content qui defile,
+     pas la page. Le rail et le panneau gardent ainsi leurs coins arrondis
+     visibles en permanence. */
+  height: 100vh;
+  padding: var(--shell-pad);
+  overflow: hidden;
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+/* ── Rail lateral ─────────────────────────────────────────────────────── */
+
+.sidebar {
+  position: sticky;
+  top: var(--shell-pad);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 0 0 var(--sidebar-w);
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--shell-pad) * 2);
+  align-self: flex-start;
+  padding: 20px 18px;
+  /* Le rail defile pour son compte : deplier un sous-menu allonge la nav
+     sans jamais pousser le pied ni le reste de la page. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  box-sizing: border-box;
+  background: var(--rail);
+  border: 1px solid var(--rail-border);
+  border-radius: var(--r-shell);
+}
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 17px;
+  font-weight: 600;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.brand-name {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.brand-sub {
+  font-size: 11.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Selecteur de boutique — l'admin y bascule d'une boutique a l'autre. */
+.shop-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--rail-border);
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: left;
+  transition: border-color var(--fast);
+}
+.shop-switch:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+.shop-avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--r-full);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.shop-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.shop-name {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.shop-role {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+/* ── Navigation groupee ───────────────────────────────────────────────── */
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+/* Un groupe = un intitule + ses entrees, chacun precede d'un filet — le
+   premier groupe compris, comme dans le design. */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 0 14px;
+  border-top: 1px solid var(--rail-rule);
+}
+.nav-section {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.7px;
+  color: var(--text-faint);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border-radius: var(--r-full);
+  color: #4c5361;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.nav-item:hover {
+  background: #e7eaef;
+  color: #1b1f27;
+}
+.nav-item.active {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Pastille d'icone : c'est elle qui porte l'etat actif, pas un aplat de
+   couleur sur toute la pilule. Lisible aussi en niveaux de gris. */
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 9px;
+  background: transparent;
+  color: #6b7280;
+}
+.nav-item.active .nav-icon {
+  background: #1b1f27;
+  color: #ffffff;
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-count {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+.nav-item.active .nav-count {
+  color: var(--accent);
+}
+.nav-toggle {
+  flex: 0 0 auto;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+/* Sous-entrees : reliees a leur parent par un filet vertical. */
+.nav-children {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 6px 0 8px 21px;
+  padding-left: 15px;
+  border-left: 1px solid var(--rail-sub-rule);
+}
+.nav-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+  color: #5b6270;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.nav-child:hover {
+  background: #e7eaef;
+  color: #1b1f27;
+}
+.nav-child.active {
+  background: var(--surface);
+  border-color: var(--rail-border);
+  color: var(--text);
+  font-weight: 500;
+}
+.nav-child svg {
+  flex: 0 0 15px;
+  color: var(--text-dim);
+}
+
+/* ── Pied du rail ─────────────────────────────────────────────────────── */
+
+/* Pousse le pied en bas, comme le <div style="flex:1"> du design. */
+.sidebar-spacer {
+  flex: 1 0 auto;
+}
+
+/* Entrees de pied : meme gabarit que la nav, coins moins ronds. */
+.nav-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  color: var(--text-soft);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.nav-foot:hover {
+  background: #e7eaef;
+  color: #1b1f27;
+}
+.nav-foot svg {
+  flex: 0 0 17px;
+  color: var(--text-dim);
+}
+
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--rail-border);
+  border-radius: 14px;
+  background: var(--surface);
+  min-width: 0;
+}
+.account-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.account-role {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+.account .avatar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  background: #2f6fd0;
+  overflow: hidden;
+  /* La silhouette remplace les initiales : c'est le motif du design. */
+  color: transparent;
+  font-size: 0;
+}
+.account .avatar::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 999px 999px 0 0;
+  background: #1b2431;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+
+/* ── Panneau principal ────────────────────────────────────────────────── */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--rail-border);
+  border-radius: var(--r-shell);
+  /* Comme le <main> du design : min-height:0 pour que les enfants en
+     `height:100%` aient une hauteur a laquelle se referer. */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+  padding: 22px var(--gutter) 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-3);
+}
+.topbar-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+.topbar-title h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-strong);
+}
+.topbar-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+/* Temoin temps reel : point + libelle, pas seulement une couleur. */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.live.on {
+  background: var(--done-soft);
+  border-color: transparent;
+  color: var(--done);
+}
+.live.on .live-dot {
+  background: currentColor;
+  animation: pulse-dot 2.2s ease-in-out infinite;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px var(--gutter) 18px;
+  overflow: hidden;
+}
+
+/* Vue d'ensemble : l'ecran porte son propre header et son propre defilement,
+   exactement comme le <main> du design de reference. On neutralise donc le
+   rembourrage de .content pour ne rien ajouter au design.
+
+   `.content` est un niveau que le design n'a pas : chez lui l'ecran est fils
+   direct du <main>. On le rend donc transparent — il prend exactement la
+   place restante (`flex:1` + `min-height:0`) et surtout PAS `height:100%`,
+   qui se calculerait sur la hauteur entiere du <main> sans deduire le
+   header : l'ecran depasserait alors par le bas. Ses enfants recoivent la
+   hauteur par le flux flex, ce qui suffit a `height:100%` plus bas. */
+.content.content-bare {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Le design ne declare NI line-height NI font-size sur body : tout herite
+     de `normal` (~1.2) et de 16px. Notre base impose 1.5 / 14px, ce qui rend
+     chaque ligne de texte ~25% plus haute — le titre, le sous-titre, les
+     chiffres des KPI — et decale tout le reste vers le bas de facon
+     cumulative. On revient donc aux valeurs du design sur cet ecran. */
+  line-height: normal;
+  font-size: 16px;
+}
+.content.content-bare > * {
+  min-height: 0;
+}
+
+/* Le design masque toutes les barres de defilement (regle `*::-webkit-scrollbar`
+   de sa feuille de style) : le contenu defile, mais aucune barre n'apparait —
+   notamment dans « Activite du jour ». */
+.content.content-bare *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.content.content-bare * {
+  scrollbar-width: none;
+}
+
+.menu-btn {
+  display: none;
+}
+
+/* Bandeau de pilotage : rappelle a l'admin qu'il agit sur une autre boutique. */
+.pilot-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 9px var(--gutter);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+.pilot-bar .btn {
+  margin-left: auto;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+.scrim {
+  display: none;
+}
+
+@media (max-width: 1020px) {
+  :root {
+    --gutter: 16px;
+    --shell-pad: 10px;
+  }
+
+  .shell {
+    gap: 0;
+    /* En tiroir, le rail est hors flux : on rend le defilement a la page. */
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .main {
+    overflow: visible;
+  }
+  .content {
+    overflow-y: auto;
+  }
+
+  /* Vue d'ensemble : le design garde la meme coque a toutes les tailles
+     (`height:100vh` sur la racine, `<main>` qui defile pour son compte).
+     Sans ce rappel, la coque mobile passe en `height:auto` et casse la
+     chaine de hauteur : les deux rangees s'etirent a la hauteur de leur
+     contenu et c'est la page entiere qui defile, ce que le design ne fait
+     jamais. */
+  .shell.shell-fixed {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .shell.shell-fixed .main {
+    overflow: hidden;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: var(--shell-pad);
+    top: var(--shell-pad);
+    flex-basis: var(--sidebar-w);
+    width: var(--sidebar-w);
+    transform: translateX(calc(-100% - var(--shell-pad) * 2));
+    transition: transform var(--slow);
+    box-shadow: var(--sh-4);
+  }
+  .shell.drawer-open .sidebar {
+    transform: translateX(0);
+  }
+
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: var(--overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--slow);
+  }
+  .shell.drawer-open .scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-btn {
+    display: inline-grid;
+  }
+  .topbar {
+    padding-top: 14px;
+  }
+  .topbar-sub {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --shell-pad: 0px;
+  }
+  .main {
+    border: 0;
+    border-radius: 0;
+  }
+  .topbar-title h1 {
+    font-size: 18px;
+  }
+  .content {
+    padding: 14px var(--gutter) 40px;
+  }
+  /* La Vue d'ensemble ne prend aucun rembourrage : le design gere lui-meme
+     ses gouttieres (26px) a l'interieur de l'ecran. */
+  .content.content-bare {
+    padding: 0;
+  }
+  .grid-stats {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .stat-value {
+    font-size: 22px;
+  }
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal {
+    max-height: 92vh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+}
+
+/* Pastille de compte dans la barre haute — rappelle celle du pied du rail. */
+.topbar-account {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 6px 12px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+.topbar-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .topbar-account span {
+    display: none;
+  }
+  .topbar-account {
+    padding: 6px;
+  }
+}

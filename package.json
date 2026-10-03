@@ -1,20 +1,16 @@
 {
-  "name": "yaammoo-website",
+  "name": "yaammoo-monorepo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.8"
+    "dev:site": "npm run dev --workspace=@yaammoo/site",
+    "dev:dashboard": "npm run dev --workspace=@yaammoo/dashboard",
+    "build:site": "npm run build --workspace=@yaammoo/site",
+    "build:dashboard": "npm run build --workspace=@yaammoo/dashboard"
   }
 }

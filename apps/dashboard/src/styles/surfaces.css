@@ -1,0 +1,225 @@
+/* Surfaces et etiquettes : cartes, bandeaux de mesures, pastilles, tableaux. */
+
+/* ── Cartes ───────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 1px var(--border), var(--sh-1);
+  overflow: hidden;
+}
+.card-pad {
+  padding: 18px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.card-foot {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-inset);
+}
+
+/* ── Bandeau de mesures ───────────────────────────────────────────────── */
+
+/* Une mesure domine, les autres l'appuient : la hierarchie est dans la
+   taille, pas dans la couleur. Les separateurs sont la grille elle-meme. */
+.kpi-band {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 1px;
+  margin-bottom: 20px;
+  background: var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: inset 0 0 0 1px var(--border), var(--sh-1);
+  overflow: hidden;
+}
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 20px;
+  background: var(--surface);
+}
+.kpi-lead {
+  padding: 20px;
+}
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+.kpi-value {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-lead .kpi-value {
+  font-size: 34px;
+  letter-spacing: -0.034em;
+}
+.kpi-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+@media (max-width: 1100px) {
+  .kpi-band {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .kpi-band {
+    grid-template-columns: 1fr;
+  }
+  .kpi-lead .kpi-value {
+    font-size: 27px;
+  }
+}
+
+/* ── Etiquettes ───────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.badge-accent {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.badge-danger {
+  background: var(--danger-mark);
+  color: #fff;
+}
+
+/* Pastille de statut : point colore + libelle. Jamais la couleur seule. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 23px;
+  padding: 0 9px 0 8px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pill-plain::before {
+  display: none;
+}
+.pill-pending {
+  background: var(--pending-soft);
+  color: var(--pending);
+}
+.pill-process {
+  background: var(--process-soft);
+  color: var(--process);
+}
+.pill-done {
+  background: var(--done-soft);
+  color: var(--done);
+}
+.pill-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.pill-accent {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+/* ── Tableaux ─────────────────────────────────────────────────────────── */
+
+/* Le tableau reste la bonne forme pour un journal : beaucoup de lignes
+   comparables qu'on lit en colonnes. Pas pour un plan de travail. */
+.table-wrap {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 9px 14px;
+  text-align: left;
+  background: var(--surface-inset);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr {
+  transition: background var(--fast);
+}
+.table-hover tbody tr:hover {
+  background: var(--surface-inset);
+  cursor: pointer;
+}
+/* Tableau nu : listes de detail dans une modale, sans chrome de tableau. */
+.table-plain td {
+  padding: 8px 0;
+}
+.table-plain th {
+  padding: 6px 0;
+  background: none;
+}
+
+/* Barre de repartition dans une cellule. */
+.meter {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+}

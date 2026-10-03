@@ -1,32 +1,37 @@
 # yaammoo-website
 
-Site vitrine + pages légales de Yaammoo (React + Vite + React Router), déployable sur Vercel.
+Monorepo des deux applications web Yaammoo.
 
-## Pages
+| App | Domaine | Role |
+|---|---|---|
+| [`apps/site`](./apps/site) | `yaammoo.rauval.com` | Site vitrine + pages legales |
+| [`apps/dashboard`](./apps/dashboard) | `dashboard.yaammoo.rauval.com` | Gestion fastfood, caisse/facturation, administration |
 
-| Route | Page |
-|---|---|
-| `/` | Accueil (hero, étapes, features, liens stores) |
-| `/support` | Centre d'aide + FAQ |
-| `/privacy` | Politique de confidentialité |
+Code commun dans [`packages/shared`](./packages/shared) (config, client API,
+socket, logique de commandes) — porte depuis l'app mobile.
 
-> Paiement **à la livraison uniquement** (espèces, aucune carte) — reflété dans les pages accueil, support et privacy.
-
-## Développement
+## Developpement
 
 ```bash
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # génère dist/
-npm run preview  # prévisualise le build
+npm install              # a la racine
+
+npm run dev:site         # http://localhost:5173
+npm run dev:dashboard    # http://localhost:5174
+
+npm run build:site
+npm run build:dashboard
 ```
 
-## Déploiement Vercel
+## Documentation
 
-Import du dossier dans Vercel — détection auto Vite.
+Voir [`architecture/`](./architecture/README.md) :
 
-- **Build command** : `npm run build`
-- **Output directory** : `dist`
-- `vercel.json` réécrit toutes les routes vers `index.html` (SPA) → pas de 404 sur `/privacy`, `/support`, etc.
+- [monorepo.md](./architecture/monorepo.md) — structure, workspaces, deploiement Vercel, sous-domaine DNS
+- [dashboard.md](./architecture/dashboard.md) — ecrans, contextes, roles
+- [shared.md](./architecture/shared.md) — package partage
 
-Tous les liens internes sont relatifs (`react-router-dom`), donc le site fonctionne quel que soit le domaine (`yaammoo.rauval.com`, preview Vercel, etc.).
+## Deploiement
+
+Deux projets Vercel sur **le meme repo et la meme branche `main`**, distingues
+par leur *Root Directory* (`apps/site` / `apps/dashboard`).
+Details et reglages DNS : [architecture/monorepo.md](./architecture/monorepo.md).
