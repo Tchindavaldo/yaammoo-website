@@ -9,30 +9,24 @@ apps/dashboard/src/
 ├── main.jsx
 ├── styles.css                    # point d'entree -> styles/ (voir design-system.md)
 ├── styles/                       # tokens, base, controls, surfaces, feedback,
-│                                 # layout, board, pos, screens, print
+│                                 # layout, menus, screens, analytics, print
 ├── components/
-│   ├── DashboardLayout.jsx       # coque : sidebar repliable + topbar + <Outlet/>
+│   ├── DashboardLayout.jsx       # coque : rail lateral + topbar + <Outlet/>
 │   ├── ui.jsx                    # primitives (Btn, Kpi, StatusPill, Timer, Modal…)
 │   ├── icons.jsx                 # jeu d'icones SVG inline, sans dependance
-│   ├── Chart.jsx                 # BarChart serie unique
-│   └── Toast.jsx                 # retours d'action non bloquants
+│   ├── Toast.jsx                 # retours d'action non bloquants
+│   ├── boutique/                 # blocs de l'ecran Boutique
+│   └── analytics/                # blocs de l'ecran Analytics
 ├── features/
 │   ├── auth/AuthContext.jsx      # Firebase Auth + profil backend + roles
 │   ├── merchant/MerchantContext.jsx  # commandes, menus, transactions, socket
-│   ├── orders/OrderTicket.jsx    # carte-ticket du board
-│   ├── orders/OrderDetailModal.jsx   # detail 3 onglets
-│   └── pos/InvoiceModal.jsx      # facture imprimable
+│   └── menus/                    # formulaire de menu
 └── pages/
     ├── Login.jsx
-    ├── Overview.jsx
-    ├── Orders.jsx
-    ├── Pos.jsx
     ├── Menus.jsx
-    ├── Wallet.jsx
-    └── admin/
-        ├── AdminShops.jsx
-        ├── AdminOrders.jsx
-        └── AdminUsers.jsx
+    ├── Overview.jsx
+    ├── Boutique.jsx
+    └── Analytics.jsx
 ```
 
 ---
@@ -41,14 +35,14 @@ apps/dashboard/src/
 
 | Route | Ecran | Acces |
 |---|---|---|
-| `/` | Vue d'ensemble | marchand + admin |
-| `/commandes` | Gestion des commandes | marchand + admin |
-| `/caisse` | Caisse (POS) + facture | marchand + admin |
-| `/menus` | Catalogue | marchand + admin |
-| `/portefeuille` | Solde, gains, transactions | marchand + admin |
-| `/admin/boutiques` | Toutes les boutiques | admin |
-| `/admin/commandes` | Toutes les commandes | admin |
-| `/admin/utilisateurs` | Comptes | admin |
+| `/`, `/menus` | Catalogue | marchand + admin |
+| `/overview` | Vue d'ensemble | marchand + admin |
+| `/boutique` | Boutique | marchand + admin |
+| `/analytics` | Statistiques d'usage de l'app | admin (item du rail masque sinon) |
+
+> ⚠️ Les sections Orders, Pos, InvoiceModal, Wallet et Admin* plus bas decrivent
+> des ecrans **absents du code actuel** (pas de route, pas de fichier). A
+> reprendre ou retirer quand ils seront (re)construits.
 
 **Garde d'acces** (`Gate` dans `App.jsx`) :
 
@@ -187,6 +181,35 @@ tout ce qui porte `.no-print` pour ne laisser que la facture.
 
 > **AdminUsers** : un endpoint backend de listing des comptes donnerait une vue
 > exhaustive, utilisateurs sans commande compris.
+
+## Analytics.jsx — statistiques d'usage (admin)
+
+Un seul item du rail (« Analytics », groupe PILOTAGE, `adminOnly`) ouvre une
+seule page, organisee comme Menus / Boutique (barre haute partagee, colonnes
+qui defilent chacune). Service : `analyticsService` (`packages/shared/src/api/`),
+routes backend `/analytics/*` (doc backend `architecture/analytics.md`). Les
+lignes portent `user { name, email, phone }`.
+
+Barre de mode : chips « Par utilisateur » / « Vue globale » (`?vue=globale`),
+pastille de periode, Actualiser. Rien ne defile : chaque carte est un resume,
+« Tout voir » ouvre le detail dans le panneau droit (`.mpanel`,
+`AnalyticsPanel.jsx` : parcours, boutiques, recherches, bannieres, historique
+d'un utilisateur).
+
+**Vue globale** (`AnalyticsGlobal`, langage de la Vue d'ensemble) : heros
+« Utilisateurs actifs » (courbe par jour) + 8 tuiles KPI avec mini-graphe et
+evolution (2e moitie vs 1re de la periode), puis parcours en colonnes,
+boutiques en barres, recherches. Source principale `/daily`.
+
+**Vue par utilisateur** :
+
+| Colonne | Contenu | Source |
+|---|---|---|
+| Gauche — `AnalyticsUsersPane` | liste `menu-row` des utilisateurs : chips Actifs / En ligne, tri (recents, connexions, temps, boutiques vues), Actualiser | fusion `/connections/stats` + `/sessions/stats` + `/home-scroll` + `/online` par `userId` |
+| Centre — `AnalyticsCards` | Audience (pastille de periode, chiffres, barres empilees par jour), Navigation du home, Parcours de commande, Boutiques les plus vues (vignettes photo), Recherches, Bannieres | `/daily`, `/sessions/stats`, `/home-scroll`, `/funnel`, `/shops`, `/searches`, `/banners` + noms/photos via `adminService` |
+| Droite — `AnalyticsUserFiche` | fiche de l'utilisateur selectionne : bandeau, stats, scroll du home, repartition de l'activite, sessions, derniers evenements | `/users/:userId` |
+
+En ligne : rafraichi toutes les 30 s. Sous 1280 px la fiche est masquee.
 
 ## Coque
 

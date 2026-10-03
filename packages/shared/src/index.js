@@ -4,6 +4,7 @@ export { auth, app } from "./firebase.js";
 export { http } from "./api/http.js";
 export { merchantService } from "./api/merchantService.js";
 export { adminService } from "./api/adminService.js";
+export { analyticsService } from "./api/analyticsService.js";
 export { socketService, ORDER_EVENTS } from "./socket.js";
 export * from "./orders/index.js";
 export * from "./format.js";

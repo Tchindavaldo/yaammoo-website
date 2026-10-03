@@ -23,6 +23,8 @@ const NAV_GROUPS = [
     label: "PILOTAGE",
     items: [
       { id: "overview", icon: "overview", label: "Vue d'ensemble", to: "/overview" },
+      // Statistiques d'usage de l'app : reserve a l'admin.
+      { id: "analytics", icon: "chart", label: "Analytics", to: "/analytics", adminOnly: true },
       {
         id: "orders",
         icon: "orders",
@@ -84,12 +86,14 @@ export default function DashboardLayout() {
   // header et son propre defilement, donc la barre haute partagee s'efface.
   const isOverview = location.pathname === "/overview";
   const isBoutique = location.pathname === "/boutique";
+  const isAnalytics = location.pathname === "/analytics";
   const isBare = isOverview;
 
   // L'item actif suit l'URL pour survivre a un rechargement.
   useEffect(() => {
     if (location.pathname === "/overview") setPage("overview");
     else if (location.pathname === "/boutique") setPage("shops");
+    else if (location.pathname === "/analytics") setPage("analytics");
     else setPage("menus");
   }, [location.pathname]);
 
@@ -163,7 +167,7 @@ export default function DashboardLayout() {
           {NAV_GROUPS.map((g) => (
             <div className="nav-group" key={g.label}>
               <div className="nav-section">{g.label}</div>
-              {g.items.map(renderItem)}
+              {g.items.filter((i) => !i.adminOnly || isAdmin).map(renderItem)}
             </div>
           ))}
         </nav>
@@ -192,7 +196,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="main">
-        {!isOverview && (
+        {!isBare && (
         <header className="topbar no-print">
           <IconBtn
             icon="hamburger"
@@ -203,10 +207,12 @@ export default function DashboardLayout() {
 
           <div className="topbar-title">
             <h1 className="truncate">
-              {isBoutique ? "Boutique" : "Gestion des menus"}
+              {isAnalytics ? "Analytics" : isBoutique ? "Boutique" : "Gestion des menus"}
             </h1>
             <span className="topbar-sub truncate">
-              {isBoutique
+              {isAnalytics
+                ? `${today} \u00a0\u00b7\u00a0 Usage de l'app mobile`
+                : isBoutique
                 ? `${today} \u00a0\u00b7\u00a0 Fiche et gestion de votre etablissement`
                 : `${today} \u00a0\u00b7\u00a0 Catalogue des plats`}
             </span>
@@ -226,7 +232,7 @@ export default function DashboardLayout() {
         </header>
         )}
 
-        {overrideFastFoodId && !isOverview && (
+        {overrideFastFoodId && !isBare && (
           <div className="pilot-bar no-print">
             <Icon name="alert" size={15} />
             Vous pilotez <strong>{shopName}</strong> en tant qu'administrateur.

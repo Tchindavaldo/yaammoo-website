@@ -7,6 +7,7 @@ import Login from "./pages/Login.jsx";
 import Menus from "./pages/Menus.jsx";
 import Overview from "./pages/Overview.jsx";
 import Boutique from "./pages/Boutique.jsx";
+import Analytics from "./pages/Analytics.jsx";
 import { Btn, Empty } from "./components/ui.jsx";
 
 /** Garde d'acces : seuls marchands et admins entrent dans le dashboard. */
@@ -53,6 +54,7 @@ function Gate() {
           <Route path="menus" element={<Menus />} />
           <Route path="overview" element={<Overview />} />
           <Route path="boutique" element={<Boutique />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -16,5 +16,6 @@
 
 @import "./styles/menus.css";
 @import "./styles/screens.css";
+@import "./styles/analytics.css";
 
 @import "./styles/print.css";
