@@ -1,32 +1,27 @@
-# yaammoo-website
+# @yaammoo/site
 
-Site vitrine + pages légales de Yaammoo (React + Vite + React Router), déployable sur Vercel.
+Site vitrine + pages légales de Yaammoo (React + Vite + React Router), servi sur
+`https://yaammoo.rauval.com` par un Worker Cloudflare (voir `architecture/monorepo.md`).
 
 ## Pages
 
 | Route | Page |
 |---|---|
-| `/` | Accueil (hero, étapes, features, liens stores) |
+| `/` | Accueil (hero, étapes, avantages, lien App Store) |
 | `/support` | Centre d'aide + FAQ |
 | `/privacy` | Politique de confidentialité |
+| `/delete-account` | Suppression de compte |
 
 > Paiement **à la livraison uniquement** (espèces, aucune carte) — reflété dans les pages accueil, support et privacy.
 
 ## Développement
 
 ```bash
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # génère dist/
-npm run preview  # prévisualise le build
+npm install          # à la racine du monorepo
+npm run dev:site     # http://localhost:5173
+npm run build:site   # dist/ : build client + prérendu HTML de chaque route
 ```
 
-## Déploiement Vercel
-
-Import du dossier dans Vercel — détection auto Vite.
-
-- **Build command** : `npm run build`
-- **Output directory** : `dist`
-- `vercel.json` réécrit toutes les routes vers `index.html` (SPA) → pas de 404 sur `/privacy`, `/support`, etc.
-
-Tous les liens internes sont relatifs (`react-router-dom`), donc le site fonctionne quel que soit le domaine (`yaammoo.rauval.com`, preview Vercel, etc.).
+Le build prérend chaque route en HTML statique (`dist/index.html`,
+`dist/support.html`...) avec ses propres balises SEO, sans navigateur.
+Titres, descriptions et ajout d'une page : voir `architecture/seo.md`.

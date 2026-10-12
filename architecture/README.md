@@ -16,6 +16,7 @@ son propre sous-domaine (Cloudflare Workers), avec un package de code partage.
 | [dashboard.md](./dashboard.md) | Dashboard : ecrans, contextes, routing, roles |
 | [design-system.md](./design-system.md) | Tokens, primitives, icones, graphes, regles de rendu |
 | [shared.md](./shared.md) | Package `@yaammoo/shared` : config, API, socket, logique commandes |
+| [seo.md](./seo.md) | SEO de la vitrine (metadonnees par route, prerendu au build, JSON-LD, sitemap, robots, llms.txt) et non-indexation du dashboard |
 
 ---
 
@@ -34,9 +35,15 @@ Les deux consomment le **meme backend** que l'app mobile :
 ```
 yaammoo-website/
 ├── apps/
-│   ├── site/                 # Vitrine (ex-racine du repo)
+│   ├── site/                 # Vitrine (ex-racine du repo), prerendue au build
 │   │   ├── src/pages/        # Home, Support, Privacy, DeleteAccount, NotFound
-│   │   ├── index.html
+│   │   ├── src/components/   # DocLayout, Icon (SVG)
+│   │   ├── src/content/      # contact.js (coordonnees), faqs.js
+│   │   ├── src/seo/          # pages.js (metadonnees), head.js, jsonld.js, useSeo.js
+│   │   ├── src/entry-server.jsx  # rendu serveur pour le prerendu
+│   │   ├── scripts/prerender.mjs # ecrit dist/<route>.html (voir seo.md)
+│   │   ├── public/           # robots.txt, sitemap.xml, llms.txt, _headers, icones, og-image
+│   │   ├── index.html        # gabarit + marqueur <!--seo-head-->
 │   │   ├── vite.config.js
 │   │   ├── wrangler.jsonc    # Worker Cloudflare yaammoo-site (build + SPA)
 │   │   └── vercel.json       # ancien rewrite SPA Vercel
@@ -47,7 +54,8 @@ yaammoo-website/
 │       │   ├── components/   # DashboardLayout, ui, icons, Chart, Toast
 │       │   ├── styles/       # design system decoupe (voir design-system.md)
 │       │   └── styles.css    # point d'entree des @import
-│       ├── index.html
+│       ├── public/           # robots.txt (Disallow), _headers (X-Robots-Tag noindex)
+│       ├── index.html        # meta robots noindex
 │       ├── vite.config.js
 │       ├── wrangler.jsonc    # Worker Cloudflare yaammoo-dashboard (build + SPA)
 │       └── vercel.json       # ancien rewrite SPA Vercel
@@ -100,6 +108,6 @@ npm install              # a la racine, installe les 3 workspaces
 npm run dev:site         # vitrine    → http://localhost:5173
 npm run dev:dashboard    # dashboard  → http://localhost:5174
 
-npm run build:site
+npm run build:site       # vite build + build SSR + prerendu des routes (seo.md)
 npm run build:dashboard
 ```
