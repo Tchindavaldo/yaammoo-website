@@ -1,8 +1,11 @@
 import DocLayout from "../components/DocLayout.jsx";
-
-const MAIL = "support@yaammoo.rauval.com";
+import { SUPPORT_EMAIL as MAIL } from "../content/contact.js";
+import { PAGES } from "../seo/pages.js";
+import useSeo from "../seo/useSeo.js";
 
 export default function Privacy() {
+  useSeo(PAGES.privacy);
+
   return (
     <DocLayout
       title="Politique de confidentialité"

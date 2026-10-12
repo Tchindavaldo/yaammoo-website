@@ -204,8 +204,10 @@ a:hover {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
 }
 .feat .icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  color: var(--orange);
+  margin-bottom: 12px;
 }
 .feat h3 {
   font-size: 1.02rem;
@@ -308,7 +310,9 @@ a:hover {
   text-align: left;
 }
 .tile .icon {
-  font-size: 1.7rem;
+  display: flex;
+  justify-content: center;
+  color: var(--orange);
   margin-bottom: 8px;
 }
 .tile strong {

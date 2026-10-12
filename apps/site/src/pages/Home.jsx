@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-
-const APP_STORE_URL = "https://apps.apple.com/app/yaammoo/id6783684604";
+import Icon from "../components/Icon.jsx";
+import { APP_STORE_URL } from "../content/contact.js";
+import { PAGES } from "../seo/pages.js";
+import useSeo from "../seo/useSeo.js";
 
 const steps = [
   {
@@ -27,33 +29,35 @@ const steps = [
 
 const features = [
   {
-    icon: "⚡️",
+    icon: "zap",
     title: "Livraison rapide",
     text: "Nos livreurs locaux connaissent le terrain pour vous livrer au plus vite.",
   },
   {
-    icon: "📍",
+    icon: "pin",
     title: "Commerces de proximité",
     text: "Soutenez les restaurants et boutiques de votre quartier.",
   },
   {
-    icon: "🔔",
+    icon: "bell",
     title: "Suivi en temps réel",
     text: "Soyez notifié à chaque étape de votre commande.",
   },
   {
-    icon: "💵",
+    icon: "cash",
     title: "Paiement à la livraison",
     text: "Payez en espèces à la réception. Zéro inscription bancaire.",
   },
 ];
 
 export default function Home() {
+  useSeo(PAGES.home);
+
   return (
     <>
       <nav className="nav">
         <Link className="brand" to="/">
-          <img src="/logo.png" alt="Yaammoo" className="brand-logo" />
+          <img src="/logo-256.png" alt="Yaammoo" className="brand-logo" width="256" height="256" />
         </Link>
         <div className="links">
           <Link to="/support">Support</Link>
@@ -72,7 +76,7 @@ export default function Home() {
           boutiques de votre quartier. Simple, rapide, fiable.
         </p>
         <a className="store-btn" href={APP_STORE_URL}>
-          <span style={{ fontSize: "1.4rem" }}>🍎</span>
+          <Icon name="apple" size={24} />
           <span>
             <span className="store-small">Télécharger sur l'</span>
             <br />
@@ -100,7 +104,9 @@ export default function Home() {
           <div className="feat-grid">
             {features.map((f) => (
               <div className="feat" key={f.title}>
-                <div className="icon">{f.icon}</div>
+                <div className="icon">
+                  <Icon name={f.icon} size={32} />
+                </div>
                 <h3>{f.title}</h3>
                 <p>{f.text}</p>
               </div>
@@ -110,7 +116,7 @@ export default function Home() {
       </div>
 
       <footer className="footer">
-        <img src="/logo.png" alt="Yaammoo" className="footer-logo" />
+        <img src="/logo-256.png" alt="Yaammoo" className="footer-logo" width="256" height="256" />
         <div>
           <Link to="/privacy">Politique de confidentialité</Link>
           <Link to="/support">Support</Link>

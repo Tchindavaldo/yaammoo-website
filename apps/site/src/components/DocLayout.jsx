@@ -5,7 +5,7 @@ export default function DocLayout({ title, subtitle, footerLinks, children }) {
     <div className="doc-body">
       <header className="doc-header">
         <Link to="/">
-          <img src="/logo.png" alt="Yaammoo" className="doc-header-logo" />
+          <img src="/logo-256.png" alt="Yaammoo" className="doc-header-logo" width="256" height="256" />
         </Link>
         <h1>{title}</h1>
         <p>{subtitle || "Yaammoo — Livraison locale au Cameroun"}</p>
