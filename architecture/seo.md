@@ -34,7 +34,7 @@ propres a la route), sans navigateur. Le dashboard
 | `/support` | `dist/support.html` | Centre d'aide et contact — Yaammoo | oui (JSON-LD FAQPage) |
 | `/privacy` | `dist/privacy.html` | Politique de confidentialité — Yaammoo | oui |
 | `/delete-account` | `dist/delete-account.html` | Suppression de compte — Yaammoo | oui |
-| toute autre URL | `dist/index.html` (repli SPA) | Page introuvable — Yaammoo | **non** (`noindex`, pas de canonical) |
+| toute autre URL | `dist/404.html` (statut 404) | Page introuvable — Yaammoo | **non** (`noindex`, pas de canonical) |
 
 Balises posees sur chaque page indexable : `<title>`, `description`,
 `robots: index, follow, max-image-preview:large`, `canonical` absolu,
@@ -60,8 +60,9 @@ Le prerendu utilise donc `react-dom/server`.
 3. `prerender` — `node scripts/prerender.mjs` : pour chaque route de
    `PRERENDER_PAGES`, rend l'app avec `StaticRouter`, remplace le marqueur par
    `renderHead(page)`, injecte le HTML dans `<div id="root" data-prerendered="/route">`
-   et ecrit `dist/index.html` (pour `/`) ou `dist/<route>.html`. Supprime ensuite
-   `dist-ssr/`.
+   et ecrit `dist/index.html` (pour `/`) ou `dist/<route>.html`. Rend aussi
+   `PAGES.notFound` dans `dist/404.html` (`data-prerendered="*"`). Supprime
+   ensuite `dist-ssr/`.
 
 Garde-fous (le build **echoue** avec un message clair) :
 
@@ -74,9 +75,9 @@ Garde-fous (le build **echoue** avec un message clair) :
 
 `src/main.jsx` compare `data-prerendered` a l'URL courante :
 
-- egal : `hydrateRoot` — React reprend le HTML existant sans le reconstruire ;
-- different (URL inconnue servie par le repli SPA, qui renvoie l'Accueil) :
-  `createRoot` — rendu client complet, la page 404 pose `noindex`.
+- egal, ou `*` (la 404, servie sur toute URL inconnue) : `hydrateRoot` — React
+  reprend le HTML existant sans le reconstruire ;
+- different : `createRoot` — rendu client complet.
 
 A chaque navigation, `useSeo` met a jour title, meta, canonical et JSON-LD.
 
@@ -94,11 +95,11 @@ A chaque navigation, `useSeo` met a jour title, meta, canonical et JSON-LD.
 `assets.html_handling` vaut `auto-trailing-slash` (defaut) : `dist/support.html`
 est servi a `/support` (l'URL utilisee dans les liens et le canonical) ;
 `/support/` et `/support.html` redirigent vers `/support`.
-`not_found_handling: "single-page-application"` est conserve : une URL inconnue
-recoit `index.html` avec un statut 200, puis le client affiche la 404 en
-`noindex`. Option si un vrai statut 404 devient necessaire : prerendre
-`PAGES.notFound` dans `dist/404.html` et passer `not_found_handling` a
-`"404-page"` (toutes les routes etant prerendues, le repli SPA n'est plus utile).
+`not_found_handling: "404-page"` : une URL inconnue recoit `dist/404.html` avec
+un vrai statut 404 (pas de « soft 404 » pour Google). Le repli SPA n'est plus
+utile puisque toutes les routes publiques sont prerendues. Consequence : **toute
+nouvelle route doit etre ajoutee a `PRERENDER_PAGES`**, sinon un acces direct a
+son URL renverrait la 404.
 
 ## Ajouter une page publique
 

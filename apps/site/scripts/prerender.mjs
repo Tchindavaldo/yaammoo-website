@@ -30,7 +30,7 @@ if (!template.includes(HEAD_MARK) || !template.includes(ROOT_DIV)) {
 }
 
 const entry = pathToFileURL(path.join(ssrDir, "entry-server.js")).href;
-const { render, renderHead, PRERENDER_PAGES, absoluteUrl } = await import(entry);
+const { render, renderHead, PAGES, PRERENDER_PAGES, absoluteUrl } = await import(entry);
 
 // public/sitemap.xml doit lister exactement les routes indexables prerendues.
 const sitemap = await readFile(path.join(root, "public", "sitemap.xml"), "utf8");
@@ -61,5 +61,15 @@ for (const page of PRERENDER_PAGES) {
   await writeFile(path.join(dist, file), html);
   console.log(`[prerender] ${page.path} -> dist/${file} (${Math.round(html.length / 1024)} Ko)`);
 }
+
+// Page 404 : Cloudflare sert dist/404.html avec un vrai statut 404 pour toute
+// URL inconnue (not_found_handling "404-page" dans wrangler.jsonc). Rendue sur
+// une URL qui ne correspond a aucune route, donc avec le composant NotFound.
+const notFoundBody = render("/__page-introuvable__");
+const notFoundHtml = template
+  .replace(HEAD_MARK, () => renderHead(PAGES.notFound))
+  .replace(ROOT_DIV, () => `<div id="root" data-prerendered="*">${notFoundBody}</div>`);
+await writeFile(path.join(dist, "404.html"), notFoundHtml);
+console.log(`[prerender] 404 -> dist/404.html (${Math.round(notFoundHtml.length / 1024)} Ko)`);
 
 await rm(ssrDir, { recursive: true, force: true });

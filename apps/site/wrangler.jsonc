@@ -15,7 +15,8 @@
   },
   "assets": {
     "directory": "./dist",
-    // Remplace le rewrite SPA de vercel.json : toute URL inconnue sert index.html.
-    "not_found_handling": "single-page-application"
+    // Toutes les routes publiques sont prerendues (dist/<route>.html) : une URL
+    // inconnue recoit dist/404.html avec un vrai statut 404 (pas de soft 404).
+    "not_found_handling": "404-page"
   }
 }

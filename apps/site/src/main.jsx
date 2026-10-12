@@ -14,11 +14,12 @@ const app = (
 );
 
 // Le HTML prerendu au build (scripts/prerender.mjs) porte la route qu'il
-// represente. On ne l'hydrate que s'il correspond a l'URL courante : une URL
-// inconnue recoit index.html (l'Accueil) via le repli SPA de Cloudflare, et
-// doit alors etre rendue entierement cote client (page 404).
+// represente ("*" pour 404.html, servi par Cloudflare sur toute URL inconnue).
+// On ne l'hydrate que s'il correspond a l'URL courante ; sinon rendu complet
+// cote client.
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
-if (container.dataset.prerendered === path) {
+const prerendered = container.dataset.prerendered;
+if (prerendered === path || prerendered === "*") {
   ReactDOM.hydrateRoot(container, app);
 } else {
   ReactDOM.createRoot(container).render(app);

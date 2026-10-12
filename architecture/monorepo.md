@@ -64,8 +64,10 @@ repository → `Tchindavaldo/yaammoo-website`) :
 
 - `build.command` installe les workspaces a la racine (`npm ci`) puis lance
   `npm run build:site` / `build:dashboard`. Teste avec `npx wrangler deploy --dry-run`.
-- `assets.not_found_handling: "single-page-application"` remplace le rewrite SPA
-  de `vercel.json`.
+- `assets.not_found_handling` : `"404-page"` pour la vitrine (toutes ses routes
+  sont prerendues, une URL inconnue recoit `404.html` avec un statut 404, voir
+  [seo.md](./seo.md)) ; `"single-page-application"` pour le dashboard (remplace
+  le rewrite SPA de `vercel.json`).
 - Domaines : declares dans `routes` (`custom_domain: true`) de chaque
   `wrangler.jsonc`. La zone `rauval.com` est sur Cloudflare (DNS, emails Zoho).
   Le certificat est emis automatiquement, y compris pour
