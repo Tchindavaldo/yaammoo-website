@@ -1,0 +1,3 @@
+# Dashboard Yaammoo (console marchand privee) : rien a explorer ni a indexer.
+User-agent: *
+Disallow: /
