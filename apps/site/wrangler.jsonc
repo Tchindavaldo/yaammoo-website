@@ -1,0 +1,20 @@
+// Cloudflare Worker (fichiers statiques) de la vitrine — yaammoo.rauval.com.
+// Deploye par Workers Builds a chaque push sur main (Root directory : apps/site).
+// Voir architecture/monorepo.md.
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "yaammoo-site",
+  "compatibility_date": "2026-10-01",
+  // URL de test <nom>.tchindavaldoblair.workers.dev, a couper une fois le domaine branche.
+  "workers_dev": true,
+  "preview_urls": false,
+  "build": {
+    // Installe les workspaces depuis la racine puis build la vitrine.
+    "command": "cd ../.. && npm ci && npm run build:site"
+  },
+  "assets": {
+    "directory": "./dist",
+    // Remplace le rewrite SPA de vercel.json : toute URL inconnue sert index.html.
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -26,12 +26,13 @@ npm run build:dashboard
 
 Voir [`architecture/`](./architecture/README.md) :
 
-- [monorepo.md](./architecture/monorepo.md) — structure, workspaces, deploiement Vercel, sous-domaine DNS
+- [monorepo.md](./architecture/monorepo.md) — structure, workspaces, deploiement Cloudflare, sous-domaine DNS
 - [dashboard.md](./architecture/dashboard.md) — ecrans, contextes, roles
 - [shared.md](./architecture/shared.md) — package partage
 
 ## Deploiement
 
-Deux projets Vercel sur **le meme repo et la meme branche `main`**, distingues
-par leur *Root Directory* (`apps/site` / `apps/dashboard`).
+Deux Workers Cloudflare (`yaammoo-site`, `yaammoo-dashboard`) sur **le meme repo
+et la meme branche `main`**, distingues par leur *Root directory*
+(`apps/site` / `apps/dashboard`) et leur `wrangler.jsonc`.
 Details et reglages DNS : [architecture/monorepo.md](./architecture/monorepo.md).

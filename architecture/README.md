@@ -1,7 +1,7 @@
 # Architecture — yaammoo-website (monorepo)
 
 Deux applications web deployees depuis **la meme branche `main`**, chacune sur
-son propre domaine Vercel, avec un package de code partage.
+son propre sous-domaine (Cloudflare Workers), avec un package de code partage.
 
 > **Convention** : mettre a jour le fichier concerne des qu'un composant, un
 > service ou un ecran est modifie. Meme regle que `architecture/` de l'app RN.
@@ -12,7 +12,7 @@ son propre domaine Vercel, avec un package de code partage.
 
 | Fichier | Contenu |
 |---|---|
-| [monorepo.md](./monorepo.md) | Structure du monorepo, workspaces, deploiement Vercel, sous-domaine |
+| [monorepo.md](./monorepo.md) | Structure du monorepo, workspaces, deploiement Cloudflare, sous-domaine |
 | [dashboard.md](./dashboard.md) | Dashboard : ecrans, contextes, routing, roles |
 | [design-system.md](./design-system.md) | Tokens, primitives, icones, graphes, regles de rendu |
 | [shared.md](./shared.md) | Package `@yaammoo/shared` : config, API, socket, logique commandes |
@@ -38,7 +38,8 @@ yaammoo-website/
 │   │   ├── src/pages/        # Home, Support, Privacy, DeleteAccount, NotFound
 │   │   ├── index.html
 │   │   ├── vite.config.js
-│   │   └── vercel.json       # rewrite SPA
+│   │   ├── wrangler.jsonc    # Worker Cloudflare yaammoo-site (build + SPA)
+│   │   └── vercel.json       # ancien rewrite SPA Vercel
 │   └── dashboard/
 │       ├── src/
 │       │   ├── features/     # auth, merchant, orders, pos
@@ -48,7 +49,8 @@ yaammoo-website/
 │       │   └── styles.css    # point d'entree des @import
 │       ├── index.html
 │       ├── vite.config.js
-│       └── vercel.json       # rewrite SPA
+│       ├── wrangler.jsonc    # Worker Cloudflare yaammoo-dashboard (build + SPA)
+│       └── vercel.json       # ancien rewrite SPA Vercel
 │
 ├── packages/
 │   └── shared/               # @yaammoo/shared — code commun

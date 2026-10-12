@@ -41,7 +41,39 @@ Pas d'etape de build intermediaire : Vite compile les sources partagees avec
 l'app. Une modification dans `packages/shared` est prise en compte
 immediatement en dev (HMR).
 
-## Deploiement Vercel — deux projets, un repo
+## Deploiement Cloudflare — deux Workers, un repo (actuel)
+
+Depuis 2026-10, les deux apps sont hebergees sur **Cloudflare Workers** (fichiers
+statiques), comme le site Rauval. Vercel Hobby interdit l'usage commercial.
+
+| App | Worker | Config | Domaine |
+|---|---|---|---|
+| Vitrine | `yaammoo-site` | `apps/site/wrangler.jsonc` | `yaammoo.rauval.com` |
+| Dashboard | `yaammoo-dashboard` | `apps/dashboard/wrangler.jsonc` | `dashboard.yaammoo.rauval.com` |
+
+Reglages a la creation de chaque Worker (Workers & Pages → Create → Import a
+repository → `Tchindavaldo/yaammoo-website`) :
+
+| Reglage | Valeur |
+|---|---|
+| Project name | `yaammoo-site` / `yaammoo-dashboard` (doit egaler `name` du wrangler.jsonc) |
+| Root directory (Advanced settings) | `apps/site` / `apps/dashboard` |
+| Build command | vide (le build est dans `wrangler.jsonc` > `build.command`) |
+| Deploy command | `npx wrangler deploy` |
+| Preview builds | desactive (seul `main` deploie) |
+
+- `build.command` installe les workspaces a la racine (`npm ci`) puis lance
+  `npm run build:site` / `build:dashboard`. Teste avec `npx wrangler deploy --dry-run`.
+- `assets.not_found_handling: "single-page-application"` remplace le rewrite SPA
+  de `vercel.json`.
+- Domaines : Worker → Domains → Add Domain, une fois la zone `rauval.com` active
+  sur Cloudflare. Le certificat est emis automatiquement, y compris pour
+  `dashboard.yaammoo.rauval.com` (sous-domaine a deux niveaux, gratuit).
+- Une fois les domaines branches, passer `workers_dev` a `false`.
+- Limites (Workers Free) : fichiers statiques gratuits et illimites ; 3 000
+  minutes de build par mois partagees par tous les Workers du compte.
+
+## Deploiement Vercel (ancien, a supprimer apres la bascule)
 
 **Les deux projets pointent sur le meme repo et la meme branche `main`.**
 Seul le *Root Directory* change.
