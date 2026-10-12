@@ -1,0 +1,30 @@
+# Yaammoo
+
+> Yaammoo est une application mobile de commande et de livraison locale au Cameroun. On y commande ses repas et ses produits auprès des restaurants et boutiques de son quartier ; un livreur local apporte la commande à domicile, avec un suivi en temps réel, et le paiement se fait en espèces à la livraison (aucune carte bancaire).
+
+- Application iOS, disponible sur l'App Store : https://apps.apple.com/app/yaammoo/id6783684604
+- Site officiel : https://yaammoo.rauval.com
+- Éditeur : Rauval (https://rauval.com), société de développement logiciel qui conçoit Yaammoo.
+- Langue du service : français.
+
+## Fonctionnement
+
+1. Choisir : parcourir les restaurants et boutiques proches et remplir son panier.
+2. Commander : valider la commande en quelques secondes ; un livreur est notifié.
+3. Suivre : notifications en temps réel jusqu'à la livraison.
+4. Payer : en espèces, à la livraison.
+
+Les restaurants et boutiques peuvent demander leur référencement en écrivant au support.
+
+## Pages
+
+- [Accueil](https://yaammoo.rauval.com/) : présentation de l'application, fonctionnement, avantages.
+- [Centre d'aide](https://yaammoo.rauval.com/support) : contact du support et foire aux questions (commande, paiement, suivi, retard, annulation, suppression de compte, référencement d'un commerce).
+- [Politique de confidentialité](https://yaammoo.rauval.com/privacy) : données collectées, utilisation, partage, conservation, sécurité, droits des utilisateurs.
+- [Suppression de compte](https://yaammoo.rauval.com/delete-account) : démarche pour supprimer son compte, délais, données supprimées et conservées.
+
+## Contact
+
+- E-mail : support@yaammoo.rauval.com
+- WhatsApp : +237 696 08 00 87
+- Horaires du support : du lundi au samedi, de 8h à 20h (heure de Yaoundé).

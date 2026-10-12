@@ -1,0 +1,19 @@
+# Yaammoo - https://yaammoo.rauval.com
+# Tout le site est public et peut etre explore, y compris par les robots IA.
+
+User-agent: *
+Allow: /
+
+# Robots des moteurs de reponse et assistants IA, autorises explicitement.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://yaammoo.rauval.com/sitemap.xml
