@@ -15,7 +15,7 @@ propres a la route), sans navigateur. Le dashboard
 | `src/seo/head.js` | Liste des balises gerees par route ; `renderHead(page)` (chaine HTML, build) et `applyHead(page)` (DOM, navigation) |
 | `src/seo/jsonld.js` | Graphe schema.org : WebSite, Organization Yaammoo, Organization Rauval, MobileApplication + noeud de la page (WebPage / FAQPage) |
 | `src/seo/useSeo.js` | Hook appele en tete de chaque page : `useSeo(PAGES.support)` |
-| `src/content/contact.js` | E-mail support, WhatsApp, horaires, lien App Store (pages + JSON-LD) |
+| `src/content/contact.js` | E-mail support, WhatsApp, horaires, liens App Store et Google Play (pages + JSON-LD) |
 | `src/content/faqs.js` | FAQ de `/support`, reprise a l'identique dans le JSON-LD FAQPage |
 | `src/entry-server.jsx` | Rendu serveur (`renderToString` + `StaticRouter`), utilise au build seulement |
 | `scripts/prerender.mjs` | Ecrit `dist/<route>.html` pour chaque route de `PRERENDER_PAGES` |
@@ -115,15 +115,14 @@ Quand le contenu d'une page change notablement, mettre a jour son `lastmod`.
 
 ## Donnees structurees (JSON-LD)
 
-Uniquement des faits affiches sur le site. Volontairement absents :
+Uniquement des faits verifiables. Le noeud `MobileApplication` porte
+`operatingSystem: "Android, iOS"`, les liens App Store et Google Play
+(`downloadUrl`, `sameAs`, constantes de `src/content/contact.js`) et
+`offers` a 0 XAF : l'app est gratuite sur les deux stores (verifie le
+2026-10-12). Volontairement absents :
 
 - **note, avis, nombre de telechargements** : aucune donnee reelle ;
-- **prix (`offers`)** : le site ne dit pas que l'application est gratuite. Si
-  elle l'est, ajouter dans le noeud `MobileApplication` de `jsonld.js` :
-  `offers: { "@type": "Offer", price: "0", priceCurrency: "XAF" }` ;
-- **Android / Google Play** : aucun lien Play Store sur le site, donc
-  `operatingSystem: "iOS"`. Ajouter le lien et `"Android"` le jour venu ;
-- **reseaux sociaux (`sameAs`)** : aucun profil connu.
+- **reseaux sociaux** : aucun profil connu.
 
 Rauval apparait comme `publisher` / `creator` (`@id`
 `https://rauval.com/#organization`). Test : Rich Results Test de Google ou

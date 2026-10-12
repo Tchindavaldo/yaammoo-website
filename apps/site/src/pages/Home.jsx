@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Icon from "../components/Icon.jsx";
-import { APP_STORE_URL } from "../content/contact.js";
+import { APP_STORE_URL, PLAY_STORE_URL } from "../content/contact.js";
 import { PAGES } from "../seo/pages.js";
 import useSeo from "../seo/useSeo.js";
 
@@ -75,14 +75,24 @@ export default function Home() {
           Commandez vos repas et produits préférés auprès des restaurants et
           boutiques de votre quartier. Simple, rapide, fiable.
         </p>
-        <a className="store-btn" href={APP_STORE_URL}>
-          <Icon name="apple" size={24} />
-          <span>
-            <span className="store-small">Télécharger sur l'</span>
-            <br />
-            <span className="store-name">App Store</span>
-          </span>
-        </a>
+        <div className="store-btns">
+          <a className="store-btn" href={APP_STORE_URL}>
+            <Icon name="apple" size={24} />
+            <span>
+              <span className="store-small">Télécharger sur l'</span>
+              <br />
+              <span className="store-name">App Store</span>
+            </span>
+          </a>
+          <a className="store-btn" href={PLAY_STORE_URL}>
+            <Icon name="googleplay" size={22} />
+            <span>
+              <span className="store-small">Disponible sur</span>
+              <br />
+              <span className="store-name">Google Play</span>
+            </span>
+          </a>
+        </div>
       </section>
 
       <section className="section">

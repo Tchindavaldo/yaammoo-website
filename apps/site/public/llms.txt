@@ -2,7 +2,9 @@
 
 > Yaammoo est une application mobile de commande et de livraison locale au Cameroun. On y commande ses repas et ses produits auprès des restaurants et boutiques de son quartier ; un livreur local apporte la commande à domicile, avec un suivi en temps réel, et le paiement se fait en espèces à la livraison (aucune carte bancaire).
 
-- Application iOS, disponible sur l'App Store : https://apps.apple.com/app/yaammoo/id6783684604
+- Application gratuite pour iPhone et Android :
+  - App Store : https://apps.apple.com/app/yaammoo/id6783684604
+  - Google Play : https://play.google.com/store/apps/details?id=com.rauval.yaammoo
 - Site officiel : https://yaammoo.rauval.com
 - Éditeur : Rauval (https://rauval.com), société de développement logiciel qui conçoit Yaammoo.
 - Langue du service : français.

@@ -19,3 +19,4 @@ export const SUPPORT_HOURS = {
 };
 
 export const APP_STORE_URL = "https://apps.apple.com/app/yaammoo/id6783684604";
+export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.rauval.yaammoo";

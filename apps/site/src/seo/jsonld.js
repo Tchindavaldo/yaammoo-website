@@ -1,11 +1,10 @@
 // Donnees structurees schema.org (JSON-LD) du site, un seul graphe par page :
 // noeuds communs (site, organisation, application, editeur) + noeud de la page.
-// Uniquement des faits affiches sur le site : aucune note, aucun avis, aucun
-// prix (le site ne dit pas que l'app est gratuite). Seule l'app iOS existe
-// (lien App Store), d'ou operatingSystem "iOS".
+// Uniquement des faits verifiables : aucune note, aucun avis. L'app est gratuite
+// sur l'App Store et sur Google Play (verifie sur les deux fiches le 2026-10-12).
 
 import { SITE_URL, SITE_NAME, OG_IMAGE, absoluteUrl } from "./pages.js";
-import { APP_STORE_URL, SUPPORT_EMAIL, SUPPORT_HOURS, WHATSAPP } from "../content/contact.js";
+import { APP_STORE_URL, PLAY_STORE_URL, SUPPORT_EMAIL, SUPPORT_HOURS, WHATSAPP } from "../content/contact.js";
 import { faqs } from "../content/faqs.js";
 
 const ID = {
@@ -64,12 +63,13 @@ const SITE_NODES = [
       "Application de commande et de livraison locale au Cameroun : repas et produits des restaurants et boutiques de votre quartier, suivi en temps réel, paiement en espèces à la livraison.",
     url: `${SITE_URL}/`,
     image: OG_IMAGE.url,
-    operatingSystem: "iOS",
+    operatingSystem: "Android, iOS",
     applicationCategory: "ShoppingApplication",
     applicationSubCategory: "Livraison de repas et de produits",
     inLanguage: "fr",
-    downloadUrl: APP_STORE_URL,
-    installUrl: APP_STORE_URL,
+    downloadUrl: [APP_STORE_URL, PLAY_STORE_URL],
+    sameAs: [APP_STORE_URL, PLAY_STORE_URL],
+    offers: { "@type": "Offer", price: "0", priceCurrency: "XAF" },
     areaServed: CAMEROON,
     featureList: [
       "Commande auprès des restaurants et boutiques de proximité",

@@ -7,7 +7,7 @@ Site vitrine + pages légales de Yaammoo (React + Vite + React Router), servi su
 
 | Route | Page |
 |---|---|
-| `/` | Accueil (hero, étapes, avantages, lien App Store) |
+| `/` | Accueil (hero, étapes, avantages, liens App Store et Google Play) |
 | `/support` | Centre d'aide + FAQ |
 | `/privacy` | Politique de confidentialité |
 | `/delete-account` | Suppression de compte |
