@@ -5,9 +5,10 @@
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "yaammoo-dashboard",
   "compatibility_date": "2026-10-01",
-  // URL de test <nom>.tchindavaldoblair.workers.dev, a couper une fois le domaine branche.
-  "workers_dev": true,
+  // Domaine branche : pas d'URL de test workers.dev.
+  "workers_dev": false,
   "preview_urls": false,
+  "routes": [{ "pattern": "dashboard.yaammoo.rauval.com", "custom_domain": true }],
   "build": {
     // Installe les workspaces depuis la racine puis build le dashboard.
     "command": "cd ../.. && npm ci && npm run build:dashboard"

@@ -66,10 +66,13 @@ repository → `Tchindavaldo/yaammoo-website`) :
   `npm run build:site` / `build:dashboard`. Teste avec `npx wrangler deploy --dry-run`.
 - `assets.not_found_handling: "single-page-application"` remplace le rewrite SPA
   de `vercel.json`.
-- Domaines : Worker → Domains → Add Domain, une fois la zone `rauval.com` active
-  sur Cloudflare. Le certificat est emis automatiquement, y compris pour
+- Domaines : declares dans `routes` (`custom_domain: true`) de chaque
+  `wrangler.jsonc`. La zone `rauval.com` est sur Cloudflare (DNS, emails Zoho).
+  Le certificat est emis automatiquement, y compris pour
   `dashboard.yaammoo.rauval.com` (sous-domaine a deux niveaux, gratuit).
-- Une fois les domaines branches, passer `workers_dev` a `false`.
+- `workers_dev: false` : pas d'URL de test `*.workers.dev`.
+- Watch paths : `yaammoo-site` ne rebuild que sur `apps/site/*` (+ `package*.json`),
+  `yaammoo-dashboard` sur `apps/dashboard/*`, `packages/*` (+ `package*.json`).
 - Limites (Workers Free) : fichiers statiques gratuits et illimites ; 3 000
   minutes de build par mois partagees par tous les Workers du compte.
 
