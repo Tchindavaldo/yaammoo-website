@@ -8,3 +8,6 @@ export { analyticsService } from "./api/analyticsService.js";
 export { socketService, ORDER_EVENTS } from "./socket.js";
 export * from "./orders/index.js";
 export * from "./format.js";
+export { IS_DEMO } from "./demo/flag.js";
+export { resetDemo } from "./demo/adapter.js";
+export { DEMO_EMAIL, DEMO_PASSWORD, DEMO_USER } from "./demo/fixtures.js";

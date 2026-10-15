@@ -3,11 +3,14 @@
 // la room de la boutique pour les evenements de commandes.
 import { io } from "socket.io-client";
 import { Config } from "./config.js";
+import { IS_DEMO } from "./demo/flag.js";
 
 let socket = null;
 
 export const socketService = {
   connect() {
+    // Mode demo : faux socket inerte, aucune connexion au backend.
+    if (IS_DEMO) return { emit() {}, on() {}, off() {}, connected: false };
     if (socket?.connected) return socket;
     socket = io(Config.socketUrl, {
       transports: ["websocket"],

@@ -111,3 +111,11 @@ npm run dev:dashboard    # dashboard  → http://localhost:5174
 npm run build:site       # vite build + build SSR + prerendu des routes (seo.md)
 npm run build:dashboard
 ```
+
+## Mode demo (branche `demo`, portfolio)
+
+`VITE_DEMO=1 npm run dev:dashboard` (ou au build) : connexion pre-remplie
+(`demo@yaammoo.cm` / `demo1234`) sans Firebase, toutes les reponses viennent
+de `packages/shared/src/demo/` (adaptateur axios + fixtures fictives), socket
+inerte, ecritures gardees dans le localStorage. Images dans
+`apps/dashboard/public/demo/`. Aucun appel au backend.

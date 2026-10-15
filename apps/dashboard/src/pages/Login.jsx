@@ -2,6 +2,7 @@
 // ou Google). Ecran en deux volets : le contexte a gauche, le formulaire a droite.
 import { useState } from "react";
 import { useAuth } from "../features/auth/AuthContext.jsx";
+import { IS_DEMO, DEMO_EMAIL, DEMO_PASSWORD } from "@yaammoo/shared";
 import { Alert, Btn, Field } from "../components/ui.jsx";
 import { Icon } from "../components/icons.jsx";
 
@@ -13,8 +14,8 @@ const POINTS = [
 
 export default function Login() {
   const { loginEmail, loginGoogle, error, setError } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(IS_DEMO ? DEMO_EMAIL : "");
+  const [password, setPassword] = useState(IS_DEMO ? DEMO_PASSWORD : "");
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState(null);
 
@@ -115,7 +116,9 @@ export default function Login() {
           </Btn>
 
           <p className="small dim auth-foot">
-            Utilisez le compte marchand de votre boutique.
+            {IS_DEMO
+              ? "Mode demo : compte fictif pre-rempli, donnees inventees, rien n'est envoye."
+              : "Utilisez le compte marchand de votre boutique."}
           </p>
         </div>
       </main>

@@ -9,6 +9,8 @@ import axios from "axios";
 import { Config } from "../config.js";
 import { auth } from "../firebase.js";
 import { APP_VERSION, APP_PLATFORM } from "../version.js";
+import { IS_DEMO } from "../demo/flag.js";
+import { demoAdapter } from "../demo/adapter.js";
 
 export const http = axios.create({
   baseURL: Config.apiUrl,
@@ -16,6 +18,8 @@ export const http = axios.create({
     "x-app-version": APP_VERSION,
     "x-platform": APP_PLATFORM,
   },
+  // Mode demo : les reponses viennent des fixtures locales, rien ne sort.
+  ...(IS_DEMO ? { adapter: demoAdapter } : {}),
 });
 
 http.interceptors.request.use(async (config) => {
@@ -24,7 +28,7 @@ http.interceptors.request.use(async (config) => {
   config.headers["x-app-version"] ??= APP_VERSION;
   config.headers["x-platform"] ??= APP_PLATFORM;
 
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (user) {
     config.headers.Authorization = `Bearer ${await user.getIdToken()}`;
   }

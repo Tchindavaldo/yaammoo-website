@@ -9,7 +9,7 @@
 // l'etape recap du mobile n'est pas reprise. Les couleurs et rayons viennent
 // de `src/theme/index.ts` de l'app RN.
 import { useRef, useState } from "react";
-import { Config } from "@yaammoo/shared";
+import { Config, IS_DEMO } from "@yaammoo/shared";
 import { Icon } from "../../components/icons.jsx";
 import ItemSection, { namedItems } from "./MenuFormItems.jsx";
 
@@ -20,6 +20,17 @@ import ItemSection, { namedItems } from "./MenuFormItems.jsx";
  * 1200 ms d'affichage pour que la barre reste lisible.
  */
 function uploadImage(file, onProgress) {
+  // Mode demo : l'image reste dans le navigateur (data URL), rien n'est envoye.
+  if (IS_DEMO)
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        onProgress(100);
+        resolve(r.result);
+      };
+      r.onerror = () => reject(new Error("Lecture de l'image impossible"));
+      r.readAsDataURL(file);
+    });
   return new Promise((resolve, reject) => {
     const started = Date.now();
     let current = 0;
