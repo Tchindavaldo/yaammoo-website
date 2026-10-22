@@ -41,6 +41,8 @@ export const PAGES = {
   },
   deleteAccount: {
     path: "/delete-account",
+    // Page de service (lien demande par Google Play) : accessible, mais hors des resultats de recherche.
+    noindex: true,
     title: "Suppression de compte — Yaammoo",
     description:
       "Comment demander la suppression de votre compte Yaammoo : démarche par e-mail ou dans l'application, délais de traitement, données supprimées et conservées.",
