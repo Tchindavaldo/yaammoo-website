@@ -19,7 +19,7 @@ export default function DocLayout({ title, subtitle, footerLinks, children }) {
       </main>
 
       <footer className="doc-footer">
-        © 2025 Yaammoo
+        © 2025 Yaammoo · <a href="https://rauval.com" target="_blank" rel="noopener">Rauval</a>
         {footerLinks?.map((l) => (
           <span key={l.to}>
             {" · "}

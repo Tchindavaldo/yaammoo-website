@@ -131,7 +131,7 @@ export default function Home() {
           <Link to="/privacy">Politique de confidentialité</Link>
           <Link to="/support">Support</Link>
         </div>
-        <div className="copy">© 2025 Yaammoo. Tous droits réservés.</div>
+        <div className="copy">© 2025 Yaammoo. Tous droits réservés. Une application <a href="https://rauval.com" target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>Rauval</a>.</div>
       </footer>
     </>
   );
