@@ -1,0 +1,2 @@
+# Liens boutique des QR codes : /shop/<id> sert la page prerendue /shop.
+/shop/* /shop 200

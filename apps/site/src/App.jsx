@@ -4,6 +4,7 @@ import Home from "./pages/Home.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Support from "./pages/Support.jsx";
 import DeleteAccount from "./pages/DeleteAccount.jsx";
+import ShopLink from "./pages/ShopLink.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 function ScrollToTop() {
@@ -21,6 +22,8 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/support" element={<Support />} />
         <Route path="/delete-account" element={<DeleteAccount />} />
+        <Route path="/shop" element={<ShopLink />} />
+        <Route path="/shop/:id" element={<ShopLink />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

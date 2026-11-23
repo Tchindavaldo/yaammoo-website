@@ -36,7 +36,7 @@ Les deux consomment le **meme backend** que l'app mobile :
 yaammoo-website/
 ├── apps/
 │   ├── site/                 # Vitrine (ex-racine du repo), prerendue au build
-│   │   ├── src/pages/        # Home, Support, Privacy, DeleteAccount, NotFound
+│   │   ├── src/pages/        # Home, Support, Privacy, DeleteAccount, ShopLink (/shop/:id des QR -> store), NotFound
 │   │   ├── src/components/   # DocLayout, Icon (SVG)
 │   │   ├── src/content/      # contact.js (coordonnees), faqs.js
 │   │   ├── src/seo/          # pages.js (metadonnees), head.js, jsonld.js, useSeo.js

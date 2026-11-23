@@ -45,6 +45,13 @@ export const PAGES = {
     description:
       "Comment demander la suppression de votre compte Yaammoo : démarche par e-mail ou dans l'application, délais de traitement, données supprimées et conservées.",
   },
+  // Lien boutique des QR codes (/shop/<id>) : redirige vers le store, jamais indexe.
+  shop: {
+    path: "/shop",
+    title: "Ouvrir dans Yaammoo",
+    description: "Ouvrez cette boutique dans l'application Yaammoo.",
+    noindex: true,
+  },
   // Page 404 : jamais indexee, pas de canonical (son URL est quelconque).
   notFound: {
     path: null,
@@ -56,4 +63,4 @@ export const PAGES = {
 
 // Routes prerendues au build : "/" -> dist/index.html, "/support" -> dist/support.html.
 // Chaque route indexable doit aussi figurer dans public/sitemap.xml (controle au build).
-export const PRERENDER_PAGES = [PAGES.home, PAGES.support, PAGES.privacy, PAGES.deleteAccount];
+export const PRERENDER_PAGES = [PAGES.home, PAGES.support, PAGES.privacy, PAGES.deleteAccount, PAGES.shop];
