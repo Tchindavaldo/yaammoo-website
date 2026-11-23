@@ -1,0 +1,8 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      { "appIDs": ["23ARWS8L89.com.rauval.yaammoo"], "appID": "23ARWS8L89.com.rauval.yaammoo", "paths": ["/shop/*"], "components": [{ "/": "/shop/*" }] }
+    ]
+  }
+}

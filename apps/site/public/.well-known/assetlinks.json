@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.rauval.yaammoo",
+      "sha256_cert_fingerprints": ["01:49:29:27:59:5C:B8:05:76:F6:BF:93:1C:4B:0E:07:4B:FB:FE:8D:A5:89:47:0E:FA:00:7F:00:9B:9F:25:54"]
+    }
+  }
+]
